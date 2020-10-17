@@ -1,0 +1,125 @@
+/* -- custom css for Bootstrap 3.x --*/
+
+/* move special fonts to HTML head for better performance */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,600');
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+a {
+    color: #FFFFFF;
+}
+
+/* fix bs3 horizontal scrollbar bug */
+.row { margin: 0; padding: 0 }
+
+.vert {
+    vertical-align: middle;
+    width:100%;
+    padding-top:0%;
+}
+
+h1 {
+    font-size:45px; 
+}
+
+.header h1 {
+    -webkit-text-stroke: 1px rgba(0,0,0,0.1);
+    color:#431A6D;
+    color:#FFFFFF;
+    margin-left:-5px;
+    margin-bottom:5px;
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+@media all and (min-width: 1367px) {
+    h1 {
+        font-size: 80px;
+    }
+
+    .header>.container {
+	margin-left: 150px;
+	padding-top: 150px;
+    }
+}
+
+@media all and (max-width: 1366px) {
+    h1 {
+        font-size: 40px;
+    }
+}
+
+.header .lead {
+    color:#eeeeee;
+    font-size:30px;
+}
+
+.header {
+    height: 100%;
+    background: url('../img/header.jpg') repeat center center fixed;
+}
+
+.blurb h1 {
+    font-size:60px;
+}
+
+.blurb .lead {
+    font-size:30px;
+}
+
+.blurb {
+    padding: 120px 0;
+    background-color:#fefefe;
+}
+
+.blurb .panel {
+    background-color:transparent;
+}
+
+.featurette {
+    background: #545455;
+    padding: 50px 0;
+    color: #ffffff;
+}
+
+.featurette-item {
+    margin-bottom: 15px;
+}
+
+.featurette-item > i {
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 56px;
+    width: 140px;
+    height: 140px;
+    line-height: 136px;
+    vertical-align: middle; 
+    text-align: center;
+}
+
+.projects {
+    color: #ffffff;
+    padding-top:0%;
+    height: 100%;
+    width: 100%;
+    font-size: 42px;
+    background: url('../img/ct.jpg') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+}
+
+footer {
+    padding: 50px 0;
+    text-align: center;
+    background: #000;
+    color: #fff;
+}
+/* -- end custom css for Bootstrap 3.x --*/

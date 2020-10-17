@@ -1,0 +1,3 @@
+// Email.js version 5
+// Original source: http://www.bronze-age.com/nospam/
+function mail(t,n,r,i,s,o){var u=document.getElementById(t);u.innerHTML='<a href="'+m_+e(n,r,i)+s+'">'+o+"</a>"}function e(e,t,n){var r=e+a_;if(n!=-2){r+=t;if(n>=0)r+=d_+tld_[n]}else r+=swapper(t);return r}function swapper(e){var t="";for(var n=0;n<e.length;n+=2)if(n+1==e.length)t+=e.charAt(n);else t+=e.charAt(n+1)+e.charAt(n);return t.replace(/\?/g,".")}var tld_=new Array;tld_[0]="com";tld_[1]="org";tld_[2]="net";tld_[3]="ws";tld_[4]="info";tld_[10]="co.uk";tld_[11]="org.uk";tld_[12]="gov.uk";tld_[13]="ac.uk";var topDom_=13;var m_="mailto:";var a_="@";var d_="."
