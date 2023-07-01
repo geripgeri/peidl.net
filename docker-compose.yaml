@@ -1,0 +1,16 @@
+---
+services:
+  peidlnet:
+    image: nginx
+    container_name: peidlnet
+    environment:
+      - PUID=$(id -u)
+      - PGID=$(id -g)
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - .:/usr/share/nginx/html:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      timeout: 10s
+    restart: unless-stopped
