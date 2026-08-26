@@ -36,15 +36,27 @@ jobs:
       - name: Measure section sizes
         run: |
           set -euo pipefail
-          python3 -c '
-            import json, re
-            html = open("index.html", encoding="utf-8").read()
-            sections = {
-                m.group(1): len(m.group(0).encode("utf-8"))
-                for m in re.finditer(r"""<section id="([a-z]+)"[^>]*>.*?</section>""", html, re.S)
-            }
-            open("sections.json", "w").write(json.dumps(sections))
-          '
+          sections=""
+          while IFS=: read -r id start end; do
+            bytes=$(sed -n "${start},${end}p" index.html | wc -c)
+            bytes=$((bytes))
+            if [ -n "$sections" ]; then sections="${sections},"; fi
+            sections="${sections}\"${id}\":${bytes}"
+          done < <(
+            awk '
+              /<section id="/ {
+                id = $0
+                sub(/.*id="/, "", id)
+                sub(/".*/, "", id)
+                start = NR
+              }
+              /<\/section>/ && start {
+                printf "%s:%d:%d\n", id, start, NR
+                start = 0
+              }
+            ' index.html
+          )
+          echo "{${sections}}" > sections.json
           cat sections.json
 
       - name: Update site-stats.json
