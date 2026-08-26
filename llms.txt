@@ -1,0 +1,33 @@
+# Gergely Peidl
+
+> Lead DevOps & Cloud Infrastructure Engineer in Budapest, Hungary with 13+ years of experience. Started as a full stack software engineer (mostly frontend), now leads a cloud infrastructure team. Focus: AWS, Kubernetes, infrastructure as code, CI/CD, automation. Automation enthusiast with a production-grade Kubernetes homelab and a Home Assistant / ESPHome smart home.
+
+Primary site: https://peidl.net/
+
+## Facts
+
+- Role: Lead DevOps & Cloud Infrastructure Engineer
+- Location: Budapest, Hungary (CET/CEST)
+- Experience: 13+ years
+- Core stack: AWS, Kubernetes (Talos Linux), OpenTofu / Terraform, Terragrunt, Ansible, ArgoCD, Prometheus, Grafana, Loki, Tempo, Cilium, Kyverno
+- CI/CD background: Jenkins (cloud-native and on-prem), GitHub Actions, GitLab CI
+- Also works with: Cloudflare, Proxmox VE, Linux (Arch), Python, Bash, n8n, Datadog, Snyk
+- Favorite tool: Terragrunt
+- Career: 12 years at Sonrisa Informatika, a project-based consulting company (software engineer, then DevOps engineer, then DevOps tech lead); now leading cloud infrastructure at Protex AI, a SaaS scale-up
+- Interviewing: 70+ technical and hiring manager interviews
+- Homelab: https://github.com/geripgeri/planet-express (Talos + ArgoCD on a single bare-metal host, an Architecture Decision Record for every non-obvious choice, 100% infrastructure as code)
+- Smart home: Home Assistant since 2017, 50+ devices, ESPHome fleet, contributor to the Home Assistant project (docs and Hungarian translations, official credits page)
+- Contact: contact@peidl.net, https://github.com/geripgeri, https://linkedin.com/in/gergely-peidl
+
+## Highlights
+
+- 1st place, AWS GameDay Infinidash Ride-Hailing (AI/ML), Vienna 2023
+- 2nd place, AWS GameDay Chaotic Commencement, Vienna 2023
+- 1st place, ISZHOK National Conference of IT Students hackathon, 2013
+- Certificates: AWS Certified Cloud Practitioner (2023), IELTS 7.5 / C1 (2024)
+- Guest lecturer at University of Pecs and University of Pannonia (soft skills for IT careers)
+- Public speaking: SAFe System Demos to 300+ viewers, conference and company talks
+
+## Notes
+
+- This site is one static HTML page. No trackers, no analytics.
