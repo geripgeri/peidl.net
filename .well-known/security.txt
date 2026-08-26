@@ -1,0 +1,18 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Contact: mailto:contact@peidl.net
+Expires: 2027-08-25T00:00:00Z
+Preferred-Languages: en, hu
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEE0zvVJI7nPPQY9B1wzxfycOracSsFAmqPMD8ACgkQzxfycOra
+cSv9FQf/QjVS32pfvr/KGRuvBOWzJj14TzNyOzVXNjvIlMTTv0zpALS6lJh9KReB
+WiMKjpbPfWDv1qvTxf6P1NEYHohnGpirmeR9Q4tWNuM578CO8UzGg2CsGjqCRUTw
+ca5kpvJzYTI8xciP34fCsKTxxLwteSsXl1OiZfvB2XFCbTD1NpONhEVReBzXVDMO
+LaYJBjxVvJ9LJCwp8G+y4E7raHOPPIctAhyVdOdtCHTlMkiG0x5gD16t0dlr4Fz1
+YSDSp2+BcStiGjKYwDSa/xCXSebw3Axvy8bHDkz+eer7SXoM6RXEv5fdaGKL3Pbw
+GK5y9j4jcsSaaq2cYBlL1vbRQdnHDQ==
+=7slZ
+-----END PGP SIGNATURE-----
