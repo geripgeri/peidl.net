@@ -1,0 +1,78 @@
+name: Sync ADR count
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-adr-count
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Count ADRs in planet-express
+        id: count
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          names=$(gh api repos/geripgeri/planet-express/contents/docs/decisions \
+            --paginate --jq '.[].name')
+          N=$(printf '%s\n' "$names" | grep -cE '^ADR-.*\.md$' || true)
+          case "$N" in
+            ''|*[!0-9]*) echo "invalid count: $N" >&2; exit 1 ;;
+          esac
+          echo "adrs=$N" >> "$GITHUB_OUTPUT"
+
+      - name: Measure section sizes
+        run: |
+          set -euo pipefail
+          python3 -c '
+            import json, re
+            html = open("index.html", encoding="utf-8").read()
+            sections = {
+                m.group(1): len(m.group(0).encode("utf-8"))
+                for m in re.finditer(r"""<section id="([a-z]+)"[^>]*>.*?</section>""", html, re.S)
+            }
+            open("sections.json", "w").write(json.dumps(sections))
+          '
+          cat sections.json
+
+      - name: Update site-stats.json
+        env:
+          ADRS: ${{ steps.count.outputs.adrs }}
+        run: |
+          jq --argjson n "$ADRS" --argjson s "$(cat sections.json)" \
+             --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+             '.adrs = $n | .sections = $s | .updated = $t' \
+             site-stats.json > site-stats.json.tmp && mv site-stats.json.tmp site-stats.json
+
+      - name: Open auto-merge PR if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ADRS: ${{ steps.count.outputs.adrs }}
+        run: |
+          if git diff --quiet site-stats.json; then
+            echo "ADR count unchanged ($ADRS)"
+            exit 0
+          fi
+          BR="ci/adr-count-$(date -u +%Y%m%d-%H%M)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add site-stats.json
+          git commit -m "chore(stats): sync ADR count to $ADRS"
+          git push -u origin "$BR"
+          gh pr create --head "$BR" \
+            --title "chore(stats): sync ADR count to $ADRS" \
+            --body "Automated sync from [planet-express](https://github.com/geripgeri/planet-express/tree/main/docs/decisions). Auto-merge enabled, no review needed."
+          gh pr merge --auto --squash --delete-branch
