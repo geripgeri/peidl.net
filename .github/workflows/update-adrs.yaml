@@ -63,10 +63,18 @@ jobs:
         env:
           ADRS: ${{ steps.count.outputs.adrs }}
         run: |
+          set -euo pipefail
           jq --argjson n "$ADRS" --argjson s "$(cat sections.json)" \
-             --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-             '.adrs = $n | .sections = $s | .updated = $t' \
-             site-stats.json > site-stats.json.tmp && mv site-stats.json.tmp site-stats.json
+             '.adrs = $n | .sections = $s' \
+             site-stats.json > site-stats.json.tmp
+          if jq -e --slurp '.[0] == .[1]' site-stats.json site-stats.json.tmp > /dev/null; then
+            echo "ADR count and section sizes unchanged ($ADRS)"
+            rm site-stats.json.tmp
+            exit 0
+          fi
+          jq --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '.updated = $t' \
+             site-stats.json.tmp > site-stats.json
+          rm site-stats.json.tmp
 
       - name: Open auto-merge PR if changed
         env:
