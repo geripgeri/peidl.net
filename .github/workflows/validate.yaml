@@ -1,0 +1,38 @@
+name: Validate site
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate HTML sections
+        run: |
+          set -euo pipefail
+          opens=$(grep -c '<section id="' index.html)
+          closes=$(grep -c '</section>' index.html)
+          if [ "$opens" -ne "$closes" ]; then
+            echo "unbalanced <section> tags: $opens opening, $closes closing" >&2
+            exit 1
+          fi
+          for id in about experience stack homelab automation contact; do
+            if ! grep -q "<section id=\"$id\"" index.html; then
+              echo "missing section: $id" >&2
+              exit 1
+            fi
+          done
+
+      - name: Validate site-stats.json
+        run: |
+          set -euo pipefail
+          jq -e 'has("adrs") and (.adrs | type == "number")' site-stats.json > /dev/null
+          jq -e 'has("sections") and (.sections | type == "object")' site-stats.json > /dev/null
+          jq -e 'has("updated") and (.updated | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))' site-stats.json > /dev/null
