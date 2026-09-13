@@ -1,7 +1,7 @@
 {
-  "adrs": 23,
+  "adrs": 24,
   "source": "https://github.com/geripgeri/planet-express/tree/main/docs/decisions",
-  "updated": "2026-09-07T09:25:14Z",
+  "updated": "2026-09-13T09:35:25Z",
   "sections": {
     "about": 2306,
     "experience": 3122,
