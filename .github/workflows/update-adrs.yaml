@@ -78,7 +78,10 @@ jobs:
 
       - name: Open auto-merge PR if changed
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Use a PAT so the pull_request event isn't created by GITHUB_TOKEN
+          # (GITHUB_TOKEN-created PRs make the validate check wait for approval).
+          # Create a PAT with repo write + contents write, store as GH_ACTION_TOKEN.
+          GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
           ADRS: ${{ steps.count.outputs.adrs }}
         run: |
           if git diff --quiet site-stats.json; then
