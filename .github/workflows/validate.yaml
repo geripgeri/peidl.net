@@ -30,6 +30,26 @@ jobs:
             fi
           done
 
+      - name: Validate llms.txt
+        run: |
+          set -euo pipefail
+          first=$(grep -m1 -v '^[[:space:]]*$' llms.txt || true)
+          case "$first" in
+            "# "*) ;;
+            *) echo "llms.txt: first non-empty line is not an H1: $first" >&2; exit 1 ;;
+          esac
+          links=$(grep -c -E '\[[^]]+\]\(https?://' llms.txt || true)
+          if [ "$links" -lt 1 ]; then
+            echo "llms.txt: no markdown links, an agent reads it as prose only" >&2
+            exit 1
+          fi
+          for anchor in $(grep -o 'https://peidl\.net/#[a-z-]*' llms.txt | sed 's|.*#||' | sort -u); do
+            if ! grep -q "<section id=\"$anchor\"" index.html; then
+              echo "llms.txt: link to #$anchor, which is not a section in index.html" >&2
+              exit 1
+            fi
+          done
+
       - name: Validate site-stats.json
         run: |
           set -euo pipefail

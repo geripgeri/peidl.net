@@ -2,7 +2,32 @@
 
 > Lead DevOps and Cloud Infrastructure Engineer in Budapest, Hungary. 13+ years in software and infrastructure engineering since October 2013, including 10+ years in DevOps and Cloud Infrastructure since March 2016. Started as a software engineer with frontend and backend responsibilities before moving toward infrastructure. Focus: AWS, Kubernetes, infrastructure as code, CI/CD, automation. Runs a Kubernetes homelab that is an ongoing project, and a smart home running Home Assistant and ESPHome.
 
-Primary site: https://peidl.net/
+## Site
+
+- [Homepage](https://peidl.net/): the whole profile, one static HTML page
+- [About](https://peidl.net/#about): who I am and what I work on
+- [Experience](https://peidl.net/#experience): roles, dates, and outcomes
+- [Stack](https://peidl.net/#stack): the tools I actually run in production
+- [Homelab](https://peidl.net/#homelab): the Kubernetes cluster and its case studies
+- [Automation](https://peidl.net/#automation): pipelines and the tooling around them
+- [Contact](https://peidl.net/#contact): email, GitHub, and LinkedIn
+
+## Case studies
+
+Each card on the homepage links to a decision record in the planet-express
+repo. Status is stated on the card. The three delivered ones are also published
+as FAQPage structured data on the homepage, so an answer engine can quote them
+and cite the ADR.
+
+- [Why Talos, not k3s (ADR-001)](https://github.com/geripgeri/planet-express/blob/main/docs/decisions/ADR-001-kubernetes.md): delivered. Minimal, immutable, API-managed nodes, provisioned by OpenTofu. No SSH, no shell, no package manager, so the whole node is defined in git. k3s makes setup faster by bundling components and relaxing defaults, which suits getting started but not a system meant to mirror production.
+- [One public repo, no home network (ADR-021)](https://github.com/geripgeri/planet-express/blob/main/docs/decisions/ADR-021-public-mirror-privacy-partitioning.md): delivered. A mirror workflow reads export-ignore paths from .gitattributes and strips them from the published history, then gitleaks scans what is left. It aborts rather than publish if the exclusion list comes back empty.
+- [Secrets you can still read in review (ADR-009)](https://github.com/geripgeri/planet-express/blob/main/docs/decisions/ADR-009-sops.md): delivered. SOPS with age encrypts values and leaves YAML field names in plaintext, so a secret change reads as a one-line diff instead of an opaque blob. Kubernetes Secrets are decrypted inside the ArgoCD repo-server by ksops.
+- [Paging through Signal (ADR-012)](https://github.com/geripgeri/planet-express/blob/main/docs/decisions/ADR-012-alerting.md): in progress, the decision record exists but implementation is not complete. The planned design routes Alertmanager to Signal, which pushes to my phone. Email waits until I open my inbox, which is wrong for a page.
+- [All decision records](https://github.com/geripgeri/planet-express/tree/main/docs/decisions): the full set
+
+## Projects
+
+- [planet-express](https://github.com/geripgeri/planet-express): the homelab. Talos Linux and ArgoCD running on a single bare-metal host, an Architecture Decision Record for every non-obvious choice, the whole Kubernetes cluster under infrastructure as code
 
 ## Facts
 
@@ -19,9 +44,9 @@ Primary site: https://peidl.net/
 - Also works with: Cloudflare, Proxmox VE, Linux (Arch), Python, Bash, n8n, Datadog, Snyk
 - Favorite tool: Terragrunt
 - Interviewing: 70+ technical and hiring manager interviews
-- Homelab: https://github.com/geripgeri/planet-express (Talos + ArgoCD running on a single bare-metal host, an Architecture Decision Record for every non-obvious choice, the whole Kubernetes cluster under infrastructure as code)
+- Homelab: [planet-express](https://github.com/geripgeri/planet-express), ongoing, with every non-obvious choice written up as an ADR
 - Smart home: Home Assistant since 2017, 50+ devices, ESPHome fleet, contributor to the Home Assistant project (docs and Hungarian translations, official credits page)
-- Contact: contact@peidl.net, https://github.com/geripgeri, https://linkedin.com/in/gergely-peidl
+- Contact: contact@peidl.net, [GitHub](https://github.com/geripgeri), [LinkedIn](https://linkedin.com/in/gergely-peidl)
 
 ## Current work
 
@@ -64,15 +89,6 @@ Sonrisa Informatika, a project-based consulting company
 
 I mentored multiple engineers at Sonrisa. One of them progressed from entry-level Junior Engineer to Senior Engineer and then to Tech Lead under my mentorship before I left in July 2025.
 
-## Case studies
-
-Each card on the homepage links to a decision record in the planet-express repo. Status is stated on the card. The three delivered ones are also published as FAQPage structured data on the homepage, so an answer engine can quote them and cite the ADR.
-
-- Why Talos, not k3s (ADR-001): delivered
-- One public repo, no home network (ADR-021): delivered
-- Secrets you can still read in review (ADR-009): delivered. SOPS with age encrypts values and leaves YAML field names in plaintext.
-- Paging through Signal (ADR-012): in progress, the decision record exists but implementation is not complete
-
 ## Highlights
 
 - Star Employee Award, Protex AI Outstanding Contributor Awards, September 2026
@@ -85,6 +101,8 @@ Each card on the homepage links to a decision record in the planet-express repo.
 
 ## Notes
 
+- This file follows the llms.txt convention: an H1, a summary, then linked
+  sections. Every link is a real URL, on this site or on GitHub.
 - This site is one static HTML page. No trackers, no analytics.
 - All profile content is in the served HTML, not rendered by JavaScript, so
   nothing here is hidden behind a script that a crawler might not run.
