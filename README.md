@@ -36,7 +36,8 @@ Any static file server works. Deploy target is GitHub Pages (`CNAME`: peidl.net)
 - JSON-LD: FAQPage built from the three delivered case studies, so an answer
   engine can lift a decision and cite it. The in-progress fourth one is left
   out on purpose, an unfinished decision is not an answer
-- Open Graph and Twitter card tags with a generated cover image
+- Open Graph and Twitter card tags, plus the social card image, whose copy
+  lives in `img/og-cover.svg` so it is reviewable in a diff (see below)
 - /llms.txt for AI agents that fetch it by convention, linked from the head
   via `rel="alternate"` and from the footer, so it is discoverable
 - robots.txt allows all crawlers; sitemap.xml lists the page with lastmod
@@ -115,12 +116,38 @@ css/styles.css      design tokens + all styling
 js/main.js          theme toggle, nav highlighting, stat counters, vim easter eggs
 fonts/              self-hosted variable woff2 fonts + OFL license texts
 img/favicon.svg     hand-made terminal-prompt mark
-img/og-cover.png    1200x630 share card for link previews
+img/og-cover.svg    source of truth for the share card
+img/og-cover.png    1200x630 share card, rendered from the svg above
 img/apple-touch-icon.png  iOS home-screen icon
 llms.txt            machine-readable profile summary for AI agents
 site-stats.json     CI-updated facts (ADR count), animated on the page
 sitemap.xml         one URL, lastmod maintained by CI
 ```
+
+## Social card
+
+`img/og-cover.svg` is the source of truth for the 1200x630 share card, and
+`img/og-cover.png` is its build output. The copy is the text content of the
+`<text>` elements in the SVG, so changing a line is a one-line edit that shows
+up in a diff instead of hiding inside a binary blob.
+
+The PNG is committed because Open Graph consumers (Facebook, LinkedIn, X,
+Slack) reject SVG for `og:image`, so the raster has to exist on disk. The
+renderer that turns the SVG into that raster is a local script and is
+deliberately not part of this repo, so there is nothing to install and nothing
+to run here, and the two have to be kept in step by hand. The SVG is committed
+so the design and the copy stay reviewable even though the tool that builds it
+is not.
+
+Two things to know before editing the SVG:
+
+- Each line carries a `data-maxw` width budget. The renderer measures the line
+  against the real font metrics and shrinks `font-size` until it fits, so
+  longer copy degrades instead of running off the card. Author the copy to fit
+  its budget at the size you want, otherwise a shrunk line ends up close to the
+  line below it and the hierarchy flattens.
+- The card is 1200x630 and has to stay that way, because `og:image:width` and
+  `og:image:height` in `index.html` must match the real PNG.
 
 ## Asset licenses & sources
 
