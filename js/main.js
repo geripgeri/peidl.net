@@ -20,7 +20,15 @@
     meta.name = 'theme-color';
     meta.content = resolved() === 'dark' ? '#282828' : '#fbf1c7';
     document.head.appendChild(meta);
-    if (toggle) toggle.textContent = 'bg=' + resolved();
+    // The visible label is the current theme, so the accessible name has to
+    // start with it or WCAG 2.5.3 (Label in Name) fails: a voice control user
+    // saying "click bg dark" would not match "Toggle color theme". Both are
+    // written from the same value so they cannot drift.
+    if (toggle) {
+      var state = 'bg=' + resolved();
+      toggle.textContent = state;
+      toggle.setAttribute('aria-label', state + ', toggle color theme');
+    }
   }
 
   var toggle = document.querySelector('.theme-toggle');
