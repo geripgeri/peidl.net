@@ -18,7 +18,6 @@ Neovim-flavored variant of the terminal-native design
 - the color toggle lives in the statusline and reads `bg=dark` / `bg=light`
 - a handful of vim easter eggs for people who type commands; :h is documentation, not a spoiler
 - The statusline lives here because it refused to stay inside Neovim. Credit to the Neovim and Powerline contributors for the inspiration.
-- content and structure are identical to the terminal-native branch
 
 ## Local preview
 
@@ -31,10 +30,16 @@ Any static file server works. Deploy target is GitHub Pages (`CNAME`: peidl.net)
 
 ## AI & SEO
 
-- JSON-LD: ProfilePage + Person schema with knowsAbout skill list
+- JSON-LD: ProfilePage + Person schema with knowsAbout skill list and a
+  hasOccupation list of `Occupation` entries (name, startDate, endDate,
+  occupationLocation) that mirrors the experience section
+- JSON-LD: FAQPage built from the three delivered case studies, so an answer
+  engine can lift a decision and cite it. The in-progress fourth one is left
+  out on purpose, an unfinished decision is not an answer
 - Open Graph and Twitter card tags with a generated cover image
-- /llms.txt for AI agents that fetch it by convention
-- robots.txt allows all crawlers; sitemap.xml lists the page
+- /llms.txt for AI agents that fetch it by convention, linked from the head
+  via `rel="alternate"` and from the footer, so it is discoverable
+- robots.txt allows all crawlers; sitemap.xml lists the page with lastmod
 - Contact email is published as plain mailto on purpose; ProtonMail's spam
   filtering is the anti-spam strategy, not obfuscation
 
@@ -46,21 +51,55 @@ The ADR counter in the homelab section is kept in sync with the
 ```
 .github/workflows/update-adrs.yaml   daily cron (04:17 UTC) + manual trigger
   1. counts ADR-*.md files in planet-express/docs/decisions via gh api
-  2. measures per-section byte sizes of index.html for the statusline
-  3. updates site-stats.json if anything changed
-  4. opens a PR and enables auto-merge (squash), no review needed
+  2. rewrites the static ADR counter in index.html and the count in this README
+  3. measures per-section byte sizes of index.html for the statusline,
+     staging them in sections.json
+  4. updates site-stats.json if anything changed
+  5. opens a PR and enables auto-merge (squash), no review needed
 ```
 
 The page fetches `site-stats.json` (same-origin, so visitors still make
 zero external requests) and counts the number up when the stat scrolls
-into view. The static `22` in the HTML is the no-JS and failure fallback;
-it is updated by hand when the design changes, so it may drift until then.
+into view. The static `25` in the HTML is the no-JS and fetch-failure fallback;
+step 2 above keeps it, and the number quoted here, in sync with the repo, so
+neither can drift. Both rewrites assert that they matched exactly once, so
+a rename that breaks either pattern fails the run loudly instead of
+silently skipping the file.
+
+`sections.json` is a build artifact, not a source file: it is the hand-off
+between the measurement in step 3 and the `jq` call in step 4, and nothing
+reads it afterwards. It is gitignored and deliberately never committed,
+because a committed copy of a regenerated intermediate is a file that is
+wrong from the moment it is written. It used to be tracked, which left a
+permanently stale copy in the repo that no run ever updated.
 
 Note: scheduled workflows run from the repo's default branch, so the
 workflow takes effect once this branch is merged to `main`.
 One-time repo setting: enable "Allow Auto-merge" under Settings >
 General. If branch protection ever requires reviews, the bot PR will
 wait until bots or admins are allowed to bypass.
+
+## Freshness automation
+
+Search crawlers and AI answer engines both weight "when was this last
+touched", and a hand-maintained date is a date that goes stale:
+
+```
+.github/workflows/update-modified-date.yaml   on every merged PR + manual trigger
+  1. checks out the merge commit
+  2. rewrites "dateModified" in the index.html JSON-LD
+  3. rewrites <lastmod> in sitemap.xml
+  4. commits and pushes to main when the date actually moved
+```
+
+The bump is idempotent: the rewrite only produces a diff when the stored
+date is not already today, so several merges in one day cost one commit.
+Runs are serialized through a concurrency group rather than canceled, so
+two merges in quick succession cannot race for the push. Pull requests
+closed without merging are skipped by the job-level `if`.
+
+This workflow listens only to `pull_request: closed`, never `push`, so
+committing the stamp back to `main` cannot re-trigger it.
 
 ## Color modes
 
@@ -80,6 +119,7 @@ img/og-cover.png    1200x630 share card for link previews
 img/apple-touch-icon.png  iOS home-screen icon
 llms.txt            machine-readable profile summary for AI agents
 site-stats.json     CI-updated facts (ADR count), animated on the page
+sitemap.xml         one URL, lastmod maintained by CI
 ```
 
 ## Asset licenses & sources
