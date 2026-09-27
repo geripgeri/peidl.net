@@ -33,6 +33,46 @@ jobs:
           esac
           echo "adrs=$N" >> "$GITHUB_OUTPUT"
 
+      # The page reads the live count from site-stats.json, but there is a
+      # static number in the HTML for the no-JS / fetch-failure case, and the
+      # README documents that number. Both are replaced here so they cannot
+      # drift away from the repo. Runs before the section measurement so the
+      # sizes are taken from the final bytes.
+      - name: Sync ADR count into index.html and README.md
+        env:
+          ADRS: ${{ steps.count.outputs.adrs }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re, sys
+
+          n = os.environ["ADRS"]
+
+          def sub(path, pattern, render, expected=1):
+              s = open(path, encoding="utf-8").read()
+              s2, count = pattern.subn(render, s)
+              if count != expected:
+                  sys.exit(f"{path}: expected {expected} match(es) for {pattern.pattern!r}, found {count}")
+              open(path, "w", encoding="utf-8").write(s2)
+
+          # index.html: the static no-JS fallback, both the data-counter value
+          # and the rendered text inside the same span.
+          sub(
+              "index.html",
+              re.compile(r'(<span data-counter=")\d+("\s+data-counter-key="adrs"[^>]*>)\d+(</span>)'),
+              lambda m: f"{m.group(1)}{n}{m.group(2)}{n}{m.group(3)}",
+          )
+
+          # README.md: the same number, in the sentence that documents it.
+          sub(
+              "README.md",
+              re.compile(r'(static `)\d+(` in the HTML)'),
+              lambda m: f"{m.group(1)}{n}{m.group(2)}",
+          )
+
+          print(f"synced ADR count {n} into index.html and README.md")
+          PY
+
       - name: Measure section sizes
         run: |
           set -euo pipefail
@@ -84,18 +124,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
           ADRS: ${{ steps.count.outputs.adrs }}
         run: |
-          if git diff --quiet site-stats.json; then
-            echo "ADR count unchanged ($ADRS)"
+          if git diff --quiet -- site-stats.json index.html README.md; then
+            echo "nothing to sync (ADR count $ADRS already current)"
             exit 0
           fi
           BR="ci/adr-count-$(date -u +%Y%m%d-%H%M)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BR"
-          git add site-stats.json
+          git add site-stats.json index.html README.md
           git commit -m "chore(stats): sync ADR count to $ADRS"
           git push -u origin "$BR"
           gh pr create --head "$BR" \
             --title "chore(stats): sync ADR count to $ADRS" \
-            --body "Automated sync from [planet-express](https://github.com/geripgeri/planet-express/tree/main/docs/decisions). Auto-merge enabled, no review needed."
+            --body "Automated sync from [planet-express](https://github.com/geripgeri/planet-express/tree/main/docs/decisions). Updates \`site-stats.json\`, the static ADR counter in \`index.html\`, and the count documented in \`README.md\`. Auto-merge enabled, no review needed."
           gh pr merge --auto --squash --delete-branch
