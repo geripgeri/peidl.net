@@ -1,33 +1,92 @@
 # Gergely Peidl
 
-> Lead DevOps & Cloud Infrastructure Engineer in Budapest, Hungary with 13+ years of experience. Started as a full stack software engineer (mostly frontend), now leads a cloud infrastructure team. Focus: AWS, Kubernetes, infrastructure as code, CI/CD, automation. Automation enthusiast with a production-grade Kubernetes homelab and a Home Assistant / ESPHome smart home.
+> Lead DevOps and Cloud Infrastructure Engineer in Budapest, Hungary. 13+ years in software and infrastructure engineering since October 2013, including 10+ years in DevOps and Cloud Infrastructure since March 2016. Started as a software engineer with frontend and backend responsibilities before moving toward infrastructure. Focus: AWS, Kubernetes, infrastructure as code, CI/CD, automation. Runs a Kubernetes homelab that is an ongoing project, and a smart home running Home Assistant and ESPHome.
 
 Primary site: https://peidl.net/
 
 ## Facts
 
-- Role: Lead DevOps & Cloud Infrastructure Engineer
+- Current role: Lead DevOps and Cloud Infrastructure Engineer
+- Current company: Protex AI
+- Recognition: Star Employee Award, Protex AI Outstanding Contributor Awards, September 2026
 - Location: Budapest, Hungary (CET/CEST)
-- Experience: 13+ years
+- Total engineering experience: 13+ years, since October 2013
+- DevOps and Cloud Infrastructure experience: 10+ years, since March 2016
+- Early career: software engineer with frontend and backend responsibilities
 - Core stack: AWS, Kubernetes (Talos Linux), OpenTofu / Terraform, Terragrunt, Ansible, ArgoCD, Prometheus, Grafana, Loki, Tempo, Cilium, Kyverno
 - CI/CD background: Jenkins (cloud-native and on-prem), GitHub Actions, GitLab CI
+- Track record: 500+ production deployments at Sonrisa (2016-2020)
 - Also works with: Cloudflare, Proxmox VE, Linux (Arch), Python, Bash, n8n, Datadog, Snyk
 - Favorite tool: Terragrunt
-- Career: 12 years at Sonrisa Informatika, a project-based consulting company (software engineer, then DevOps engineer, then DevOps tech lead); now leading cloud infrastructure at Protex AI, a SaaS scale-up
 - Interviewing: 70+ technical and hiring manager interviews
-- Homelab: https://github.com/geripgeri/planet-express (Talos + ArgoCD on a single bare-metal host, an Architecture Decision Record for every non-obvious choice, 100% infrastructure as code)
+- Homelab: https://github.com/geripgeri/planet-express (Talos + ArgoCD running on a single bare-metal host, an Architecture Decision Record for every non-obvious choice, the whole Kubernetes cluster under infrastructure as code)
 - Smart home: Home Assistant since 2017, 50+ devices, ESPHome fleet, contributor to the Home Assistant project (docs and Hungarian translations, official credits page)
 - Contact: contact@peidl.net, https://github.com/geripgeri, https://linkedin.com/in/gergely-peidl
 
+## Current work
+
+I lead Cloud Infrastructure at Protex AI. I set technical direction, review
+important pull requests, and write infrastructure code every week.
+
+When the Infrastructure Team was formed in May 2026, I decided to step back
+from people management and returned to a hands-on Lead DevOps Engineer role.
+
+## Leadership outcomes
+
+Lead DevOps and Cloud Infrastructure Engineer, May 2026 to present:
+
+- I lead infrastructure incident response and post-mortems, and I am the go-to person for infrastructure issues
+- I lead AWS cost optimization, rightsizing, and reserved-savings analysis
+- I am a key contact for a handful of vendors, handling license, extension, and renewal agreements
+
+Engineering Manager and Lead DevOps Engineer, Cloud Infrastructure Team,
+September 2025 to May 2026:
+
+- I built a cross-country engineering team from zero, including 1:1s, status cadences, coaching, and team operations
+- I migrated legacy Terraform to a stack-based IaC pattern with secrets management, Terraform tests, and an ADR program
+
+I work best in a player-coach role, combining technical direction,
+mentoring, and hands-on infrastructure engineering.
+
+## Career history
+
+Protex AI, a SaaS scale-up
+
+- Lead DevOps and Cloud Infrastructure Engineer: May 2026 to present
+- Engineering Manager and Lead DevOps Engineer, Cloud Infrastructure Team: September 2025 to May 2026
+- Lead DevOps Engineer, Platform Team: July 2025 to August 2025
+
+Sonrisa Informatika, a project-based consulting company
+
+- Senior DevOps Engineer and Technical Lead: August 2020 to July 2025
+- DevOps Engineer: March 2016 to August 2020
+- Software Engineer: October 2013 to March 2016
+
+I mentored multiple engineers at Sonrisa. One of them progressed from entry-level Junior Engineer to Senior Engineer and then to Tech Lead under my mentorship before I left in July 2025.
+
+## Case studies
+
+Each card on the homepage links to a decision record in the planet-express repo. Status is stated on the card. The three delivered ones are also published as FAQPage structured data on the homepage, so an answer engine can quote them and cite the ADR.
+
+- Why Talos, not k3s (ADR-001): delivered
+- One public repo, no home network (ADR-021): delivered
+- Secrets you can still read in review (ADR-009): delivered. SOPS with age encrypts values and leaves YAML field names in plaintext.
+- Paging through Signal (ADR-012): in progress, the decision record exists but implementation is not complete
+
 ## Highlights
 
-- 1st place, AWS GameDay Infinidash Ride-Hailing (AI/ML), Vienna 2023
+- Star Employee Award, Protex AI Outstanding Contributor Awards, September 2026
+- 1st place, AWS GameDay Infinidash Ride-Hailing (AI/ML track), Vienna 2023
 - 2nd place, AWS GameDay Chaotic Commencement, Vienna 2023
 - 1st place, ISZHOK National Conference of IT Students hackathon, 2013
 - Certificates: AWS Certified Cloud Practitioner (2023), IELTS 7.5 / C1 (2024)
-- Guest lecturer at University of Pecs and University of Pannonia (soft skills for IT careers)
+- Guest lecturer at University of Pécs and University of Pannonia (soft skills for IT careers)
 - Public speaking: SAFe System Demos to 300+ viewers, conference and company talks
 
 ## Notes
 
 - This site is one static HTML page. No trackers, no analytics.
+- All profile content is in the served HTML, not rendered by JavaScript, so
+  nothing here is hidden behind a script that a crawler might not run.
+- Page freshness: the JSON-LD dateModified and the sitemap lastmod are bumped
+  by CI on every merged pull request.
