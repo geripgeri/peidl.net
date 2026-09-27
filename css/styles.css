@@ -415,36 +415,60 @@ html:not(.js) .theme-toggle {
   padding-left: 2px;
 }
 
+/* This used var(--bg0) and var(--border), which are not defined anywhere.
+   An unresolved var() invalidates the whole declaration, so the background
+   fell back to transparent and the border shorthand was dropped entirely,
+   leaving the toast as bare text floating over whatever was behind it. */
 .arrow-toast {
   position: fixed;
   bottom: calc(2rem + 34px + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg0);
-  color: var(--text-mute);
+  background: var(--bg-raised);
+  color: var(--text);
   font: 0.82rem/1.5 var(--font-mono);
   padding: 0.45rem 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-strong);
   border-radius: 4px;
   z-index: 1001;
   opacity: 0;
-  animation: toast-in 0.25s ease forwards;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
+}
+/* Visibility is driven by the hidden attribute, not by a class the script has
+   to add. Removing hidden is then enough to show it, so a stale cached
+   main.js degrades to the old blink-away behaviour instead of an element
+   stuck at opacity 0. */
+.arrow-toast:not([hidden]) {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 .arrow-toast[hidden] {
   display: none;
 }
+/* The faded state, used in both directions: added before unhiding so the
+   transition has an opacity 0 to start from, and added again to fade out.
+   It must come after :not([hidden]); the two selectors tie on specificity,
+   so source order is what decides, and this one has to win. Without it the
+   fade-in snapped, because unhiding computed straight to opacity 1 and the
+   start state equalled the end state. */
+.arrow-toast.is-faded {
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrow-toast {
+    transition: none;
+  }
+}
 .arrow-toast kbd {
   font-family: inherit;
   font-size: inherit;
-  background: var(--bg1);
+  color: var(--text);
+  background: var(--bg-code);
   padding: 0.1em 0.4em;
   border-radius: 3px;
-  border: 1px solid var(--border);
-}
-@keyframes toast-in {
-  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  border: 1px solid var(--line);
 }
 
 .vim-egg {
@@ -463,6 +487,17 @@ html:not(.js) .theme-toggle {
   background: rgba(20, 16, 8, 0.6);
 }
 
+/* The help table's longest line is 55 characters ("  ^D / ^U ... scroll
+   half-page down / up"), which needs about 422px of text at 0.8rem. The
+   26rem base leaves only 360px, so the <pre> scrolled sideways and clipped
+   the last few words. 34rem gives roughly 8 characters of slack, and
+   because both the font-size and the width are in rem the ratio holds at
+   any root font size. The prose and ASCII-art dialogs keep 26rem, which is
+   already a comfortable line length for running text. */
+#vim-help {
+  max-width: 34rem;
+}
+
 .vim-egg .egg-cmd {
   font-size: 1.05rem;
   font-weight: 700;
@@ -470,11 +505,14 @@ html:not(.js) .theme-toggle {
   margin-bottom: 0.5rem;
 }
 
-.vim-egg h3 {
+/* Was an h3, now a styled p: headings inside these <dialog>s leaked into the
+   document outline for agents that strip tags, e.g. "Documentation". */
+.vim-egg .egg-title {
   font-size: 1.2rem;
   font-weight: 750;
   letter-spacing: -0.01em;
-  margin-bottom: 0.6rem;
+  color: var(--text);
+  margin: 0 0 0.6rem;
 }
 
 .vim-egg p {
@@ -585,11 +623,18 @@ html:not(.js) .theme-toggle {
 .hero .lead strong {
   color: var(--text);
   font-weight: 600;
+  /* Its own line, so the years count starts a fresh line rather than
+     trailing the title. 56 characters is 33.6em against the 36em measure
+     above, and both scale together, so the title never wraps at any size. */
+  display: block;
 }
 
 .hero-meta {
   margin-top: 1.9rem;
-  max-width: 36em;
+  /* rem, not em: em would resolve against this element's own 0.82rem, giving
+     472px for 472px of text and wrapping on any rounding. The strip is one
+     line by design, so it needs real headroom. */
+  max-width: 36rem;
   font-family: var(--font-mono);
   font-size: 0.82rem;
   line-height: 2;
@@ -666,6 +711,11 @@ section {
   padding-block: clamp(3rem, 8vh, 5rem) clamp(3.6rem, 10vh, 6.2rem);
 }
 
+/* The eyebrow is a <p>, so the h2 beside it is the accessible name and what
+   an agent reads as the section title. The h2s therefore carry plain topical
+   words and the voiceful lines live in the .intro below them. The eyebrow
+   holds the file name rather than the section name so the two do not stutter,
+   and it matches the open file in the statusline. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -687,10 +737,30 @@ section {
   max-width: 44em;
 }
 
+#about {
+  --about-gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* The intro sits above the two-column grid, so at 44em it ran out past the
+   prose column and visually crowded the facts box beside and below it.
+   Tying the measure to the grid's own first column keeps them aligned at
+   every width, and survives a change to the 1.55fr ratio.
+   The size is set so the deck stays on the two intended lines: the site
+   renders entirely in JetBrains Mono, where the second line needs 501px
+   at 0.9rem against 549px of column. The single column breakpoint
+   restores 1rem and the full 44em measure. */
+#about .section-head .intro {
+  max-width: calc((100% - var(--about-gap)) * 1.55 / 2.55);
+  font-size: 0.9rem;
+}
+#about .section-head .intro + .intro {
+  margin-top: 0.3rem;
+}
+
 .about-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 3.5rem);
+  gap: var(--about-gap);
   margin-top: 2.6rem;
 }
 
@@ -789,6 +859,24 @@ section {
 .xp-item p {
   font-size: 0.95rem;
   color: var(--text-mute);
+}
+
+/* Public-safe outcomes listed under the current role. */
+.lead-list {
+  margin-top: 0.7rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.lead-list li {
+  font-size: 0.92rem;
+  color: var(--text-mute);
+  line-height: 1.55;
+}
+
+.lead-list li::marker {
+  color: var(--accent);
 }
 
 .recs-label {
@@ -929,7 +1017,8 @@ section {
 
 .cs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+  /* Four cards use two columns on desktop (2 + 2) and one column on small screens. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.1rem;
   margin-top: 1rem;
 }
@@ -1136,9 +1225,17 @@ section {
   .about-grid {
     grid-template-columns: 1fr;
   }
+  /* single column, so the intro can use the full measure and body size again */
+  #about .section-head .intro {
+    max-width: 44em;
+    font-size: 1rem;
+  }
   .xp-item {
     grid-template-columns: 1fr;
     gap: 0.45rem;
+  }
+  .cs-grid {
+    grid-template-columns: 1fr;
   }
   .site-nav .wrap {
     gap: 0.9rem;

@@ -234,7 +234,6 @@
     window.scrollBy({ top: down ? 60 : -60, behavior: instant ? 'instant' : smooth() });
   }
 
-  var arrowToast = document.getElementById('arrow-toast');
   if (modeEl) {
     document.addEventListener('selectionchange', function () {
       if (Date.now() < findSelUntil) return;
@@ -456,17 +455,57 @@
   }
 
   var arrowTimer = null;
+  var arrowToast = document.getElementById('arrow-toast');
+  var ARROW_LINGER_MS = 2200;
+  var ARROW_FADE_MS = 260;
+
+  // Same faded state in both directions, so the two are exact mirrors.
+  function fadeOut() {
+    if (!arrowToast) return;
+    arrowToast.classList.add('is-faded');
+  }
+
+  function fadeIn() {
+    if (!arrowToast) return;
+    arrowToast.classList.remove('is-faded');
+  }
+
+  function hideArrowToast() {
+    if (!arrowToast) return;
+    fadeOut();
+    if (arrowTimer) clearTimeout(arrowTimer);
+    arrowTimer = setTimeout(function () {
+      arrowToast.hidden = true;
+      fadeIn();
+      arrowTimer = null;
+    }, ARROW_FADE_MS);
+  }
+
+  function showArrowToast() {
+    if (!arrowToast) return;
+    // Clears a fade-out already in flight, so a second arrow keypress
+    // reverses it instead of racing it.
+    fadeIn();
+    if (arrowToast.hidden) {
+      // Add the faded class before unhiding, otherwise :not([hidden]) applies
+      // the moment the element is displayed and there is no opacity 0 for the
+      // transition to start from. The forced reflow then locks that in.
+      fadeOut();
+      arrowToast.hidden = false;
+      void arrowToast.offsetWidth;
+      fadeIn();
+    }
+    if (arrowTimer) clearTimeout(arrowTimer);
+    arrowTimer = setTimeout(hideArrowToast, ARROW_LINGER_MS);
+  }
+
   window.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       var ae = document.activeElement;
       if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
       var dialog = document.querySelector('dialog[open]');
       if (dialog) return;
-      if (arrowToast) {
-        if (arrowTimer) clearTimeout(arrowTimer);
-        arrowToast.hidden = false;
-        arrowTimer = setTimeout(function () { arrowToast.hidden = true; arrowTimer = null; }, 2200);
-      }
+      showArrowToast();
     }
   });
 
@@ -491,7 +530,7 @@
     console.log(
       '%c:h',
       'font-family:monospace; font-size:1.4em; font-weight:bold; color:#b8bb26;',
-      'vim commands work on the page. start there.'
+      'Vim commands work on the page. Start there.'
     );
   } catch (e) {}
 

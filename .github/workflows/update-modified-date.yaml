@@ -1,0 +1,81 @@
+name: Sync last modified date
+
+# Blanket bump on every merge to the default branch: rewrite the JSON-LD
+# dateModified in index.html and <lastmod> in sitemap.xml so crawlers and
+# answer engines see a freshness signal that nobody has to maintain by hand.
+#
+# Idempotent by construction: the replacement only produces a diff when the
+# stored date is not already today, so repeated runs on the same day are no-ops.
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One bump at a time, queued rather than cancelled, so two merges in quick
+# succession cannot race each other for the push to main.
+concurrency:
+  group: sync-last-modified-date
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # closed-but-not-merged means the PR was abandoned.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Land the stamp on top of the merge commit, on the base branch.
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
+          fetch-depth: 1
+
+      - name: Stamp today's date
+        run: |
+          set -euo pipefail
+          TODAY=$(date -u +%F)
+          echo "stamping $TODAY"
+          python3 - "$TODAY" <<'PY'
+          import re, sys
+
+          today = sys.argv[1]
+
+          def sub(path, pattern, render):
+              s = open(path, encoding="utf-8").read()
+              s2, count = pattern.subn(render, s)
+              if count != 1:
+                  sys.exit(f"{path}: expected exactly 1 match for {pattern.pattern!r}, found {count}")
+              open(path, "w", encoding="utf-8").write(s2)
+
+          sub(
+              "index.html",
+              re.compile(r'("dateModified": ")\d{4}-\d{2}-\d{2}(")'),
+              lambda m: f"{m.group(1)}{today}{m.group(2)}",
+          )
+          sub(
+              "sitemap.xml",
+              re.compile(r"(<lastmod>)\d{4}-\d{2}-\d{2}(</lastmod>)"),
+              lambda m: f"{m.group(1)}{today}{m.group(2)}",
+          )
+          PY
+
+      - name: Commit and push if changed
+        env:
+          # Prefer the PAT so a push here can still trigger a Pages deploy or
+          # any other push-triggered workflow. Safe to loop: this workflow only
+          # listens to pull_request:closed, which a push cannot raise.
+          GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- index.html sitemap.xml; then
+            echo "date already current, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sitemap.xml
+          git commit -m "chore(seo): sync last modified date to $(date -u +%F)"
+          git push origin HEAD:"${GITHUB_REF_NAME:-main}"
