@@ -39,7 +39,15 @@ Any static file server works. Deploy target is GitHub Pages (`CNAME`: peidl.net)
 - Open Graph and Twitter card tags, plus the social card image, whose copy
   lives in `img/og-cover.svg` so it is reviewable in a diff (see below)
 - /llms.txt for AI agents that fetch it by convention, linked from the head
-  via `rel="alternate"` and from the footer, so it is discoverable
+  via `rel="alternate"` and from the footer, so it is discoverable. It is
+  written in the [llms.txt](https://llmstxt.org/) shape on purpose: an H1, a
+  blockquote summary, then `##` sections whose entries are Markdown links.
+  Naming a URL in prose is not linking it, so a reader parsing the file as
+  Markdown finds a document with no links in it, which is the one thing the
+  format is for. Every entry below the summary is a real `[title](url)`.
+  `validate.yaml` checks the H1, that at least one Markdown link exists, and
+  that every `peidl.net/#anchor` it links to is a section in `index.html`,
+  so renaming a section cannot quietly break a link an agent follows
 - robots.txt allows all crawlers; sitemap.xml lists the page with lastmod
 - Contact email is published as plain mailto on purpose; ProtonMail's spam
   filtering is the anti-spam strategy, not obfuscation
@@ -119,7 +127,7 @@ img/favicon.svg     hand-made terminal-prompt mark
 img/og-cover.svg    source of truth for the share card
 img/og-cover.png    1200x630 share card, rendered from the svg above
 img/apple-touch-icon.png  180x180 home-screen icon, rendered from favicon.svg
-llms.txt            machine-readable profile summary for AI agents
+llms.txt            spec-shaped profile summary for AI agents (H1, summary, links)
 site-stats.json     CI-updated facts (ADR count), animated on the page
 sitemap.xml         one URL, lastmod maintained by CI
 ```
