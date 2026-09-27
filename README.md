@@ -118,7 +118,7 @@ fonts/              self-hosted variable woff2 fonts + OFL license texts
 img/favicon.svg     hand-made terminal-prompt mark
 img/og-cover.svg    source of truth for the share card
 img/og-cover.png    1200x630 share card, rendered from the svg above
-img/apple-touch-icon.png  iOS home-screen icon
+img/apple-touch-icon.png  180x180 home-screen icon, rendered from favicon.svg
 llms.txt            machine-readable profile summary for AI agents
 site-stats.json     CI-updated facts (ADR count), animated on the page
 sitemap.xml         one URL, lastmod maintained by CI
@@ -148,6 +148,21 @@ Two things to know before editing the SVG:
   line below it and the hierarchy flattens.
 - The card is 1200x630 and has to stay that way, because `og:image:width` and
   `og:image:height` in `index.html` must match the real PNG.
+
+## Home-screen icon
+
+`img/favicon.svg` is the source of truth for the prompt mark, and
+`img/apple-touch-icon.png` is its build output at the one size iOS still reads.
+The renderer is a local script and is deliberately not part of this repo, so
+like the share card there is nothing to install and nothing to run here, and
+the drawing and its raster have to be kept in step by hand.
+
+The icon used to be a separate hand-drawn file, and it drifted: the chevron
+arms ended up shallower than the favicon's, so the home-screen icon stopped
+looking like the tab next to it. Rendering one from the other makes that
+impossible. The only change the renderer makes is dropping the `rx` corner
+radius, because iOS masks the icon with its own squircle and a radius baked
+into the PNG would show up as a double curve.
 
 ## Asset licenses & sources
 
