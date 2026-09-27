@@ -4,3 +4,10 @@
 # the committed copy was permanently stale because the workflow never added it
 # to its commit.
 sections.json
+
+# Local tooling only. The renderers that turn the committed svg sources into the
+# committed pngs live on one machine and are not part of the site, so the repo
+# stays dependency-free static files with no build step.
+node_modules/
+tools/og-cover.mjs
+tools/apple-touch-icon.mjs

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Source of truth for the social share card at img/og-cover.png.
+
+  The card copy is the text content of the <text> elements below, so changing a
+  line is a one-line edit that shows up in git as a readable diff. The PNG is
+  the build output and is committed, because Open Graph consumers (Facebook,
+  LinkedIn, X, Slack) reject SVG for og:image, so the raster has to exist on
+  disk. The renderer that turns this file into that raster is a local script
+  and is deliberately not part of this repo, so there is no npm command for it
+  here; keep the two in step by hand when the copy changes.
+
+  Each line carries data-maxw, its width budget in user units. The renderer
+  measures the line against the real font metrics and shrinks font-size until it
+  fits, so longer copy degrades instead of running off the edge. Author the copy
+  to fit its budget at the size you want: a line that needs shrinking ends up
+  close to the line below it and the hierarchy flattens.
+
+  Colours are the gruvbox dark tokens from css/styles.css: accent #b8bb26,
+  text #ebdbb2, muted #a89984, faint #7c6f64. The card is always dark, because
+  a link preview has no way to know the reader's theme.
+
+  Size is 1200x630 and must stay that way: the og:image:width and
+  og:image:height tags in index.html have to match the real PNG.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Terminal-style profile card for Gergely Peidl, Lead DevOps and Cloud Infrastructure Engineer at Protex AI, Budapest, Hungary.">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ebdbb2" stroke-opacity="0.045" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#282828" />
+  <rect width="1200" height="630" fill="url(#grid)" />
+  <g font-family="JetBrains Mono" fill="#a89984">
+    <text x="72" y="136" font-size="34" fill="#b8bb26" data-maxw="1088">$</text>
+    <text x="108" y="136" font-size="34" data-maxw="1052">cat ~/profile</text>
+    <text x="72" y="248" font-size="58" fill="#b8bb26" data-maxw="1088">&gt;</text>
+    <text x="118" y="248" font-size="58" fill="#a89984" data-maxw="1042">_</text>
+    <text x="72" y="360" font-size="74" fill="#ebdbb2" data-maxw="1088">Gergely Peidl</text>
+    <text x="72" y="434" font-size="40" data-maxw="1088">Lead DevOps and Cloud Infrastructure Engineer</text>
+    <text x="72" y="500" font-size="30" fill="#7c6f64" data-maxw="1088">Protex AI · peidl.net · Budapest, HU</text>
+    <text x="72" y="560" font-size="30" fill="#7c6f64" data-maxw="1088">13+ yrs engineering · 10+ DevOps</text>
+  </g>
+</svg>
