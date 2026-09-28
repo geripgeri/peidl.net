@@ -1,12 +1,12 @@
 {
   "adrs": 25,
   "source": "https://github.com/geripgeri/planet-express/tree/main/docs/decisions",
-  "updated": "2026-09-27T16:15:00Z",
+  "updated": "2026-09-28T10:59:18Z",
   "sections": {
-    "about": 3391,
-    "experience": 5398,
-    "stack": 3166,
-    "homelab": 8865,
+    "about": 3397,
+    "experience": 5366,
+    "stack": 3082,
+    "homelab": 8864,
     "automation": 2983,
     "contact": 3096
   }
