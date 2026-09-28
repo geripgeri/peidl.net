@@ -45,7 +45,7 @@ and cite the ADR.
 - Favorite tool: Terragrunt
 - Interviewing: 70+ technical and hiring manager interviews
 - Homelab: [planet-express](https://github.com/geripgeri/planet-express), ongoing, with every non-obvious choice written up as an ADR
-- Smart home: Home Assistant since 2017, 50+ devices, ESPHome fleet, contributor to the Home Assistant project (docs and Hungarian translations, official credits page)
+- Smart home: Home Assistant since 2017, 50+ devices, ESPHome fleet, [documentation and translation work for Home Assistant](https://www.home-assistant.io/developers/credits/)
 - Contact: contact@peidl.net, [GitHub](https://github.com/geripgeri), [LinkedIn](https://linkedin.com/in/gergely-peidl)
 
 ## Current work
