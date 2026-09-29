@@ -106,5 +106,6 @@ I mentored multiple engineers at Sonrisa. One of them progressed from entry-leve
 - This site is one static HTML page. No trackers, no analytics.
 - All profile content is in the served HTML, not rendered by JavaScript, so
   nothing here is hidden behind a script that a crawler might not run.
-- Page freshness: the JSON-LD dateModified and the sitemap lastmod are bumped
-  by CI on every merged pull request.
+- Page freshness: the JSON-LD dateModified is bumped by CI on every merged
+  pull request, dated from git history rather than the clock. The sitemap
+  carries no lastmod.
