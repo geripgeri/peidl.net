@@ -48,7 +48,8 @@ Any static file server works. Deploy target is GitHub Pages (`CNAME`: peidl.net)
   `validate.yaml` checks the H1, that at least one Markdown link exists, and
   that every `peidl.net/#anchor` it links to is a section in `index.html`,
   so renaming a section cannot quietly break a link an agent follows
-- robots.txt allows all crawlers; sitemap.xml lists the page with lastmod
+- robots.txt allows all crawlers; sitemap.xml lists the page, with no lastmod
+  because a single URL gives a crawler no scheduling decision to make
 - Contact email is published as plain mailto on purpose; ProtonMail's spam
   filtering is the anti-spam strategy, not obfuscation
 
@@ -96,19 +97,20 @@ touched", and a hand-maintained date is a date that goes stale:
 ```
 .github/workflows/update-modified-date.yaml   on every merged PR + manual trigger
   1. checks out the merge commit
-  2. rewrites "dateModified" in the index.html JSON-LD
-  3. rewrites <lastmod> in sitemap.xml
-  4. commits and pushes to main when the date actually moved
+  2. derives the date of the last commit that changed index.html, skipping the
+     bot's own stamps and any commit whose whole diff is the dateModified line
+  3. rewrites "dateModified" in the index.html JSON-LD as an ISO 8601 DateTime
+  4. opens a PR with auto-merge, and only when the date actually moved
 ```
 
-The bump is idempotent: the rewrite only produces a diff when the stored
-date is not already today, so several merges in one day cost one commit.
+The bump is idempotent: the rewrite only produces a diff when the stored date
+is not already the derived one, so several merges in one day cost one commit.
 Runs are serialized through a concurrency group rather than canceled, so
-two merges in quick succession cannot race for the push. Pull requests
-closed without merging are skipped by the job-level `if`.
+two merges in quick succession cannot race for the branch and the PR. Pull
+requests closed without merging are skipped by the job-level `if`.
 
 This workflow listens only to `pull_request: closed`, never `push`, so
-committing the stamp back to `main` cannot re-trigger it.
+the stamp landing on `main` through the PR cannot re-trigger it.
 
 ## Color modes
 
@@ -129,7 +131,7 @@ img/og-cover.png    1200x630 share card, rendered from the svg above
 img/apple-touch-icon.png  180x180 home-screen icon, rendered from favicon.svg
 llms.txt            spec-shaped profile summary for AI agents (H1, summary, links)
 site-stats.json     CI-updated facts (ADR count), animated on the page
-sitemap.xml         one URL, lastmod maintained by CI
+sitemap.xml         one URL, no lastmod (see Freshness automation)
 ```
 
 ## Social card
