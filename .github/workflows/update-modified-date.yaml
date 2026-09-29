@@ -44,21 +44,39 @@ jobs:
         id: derive
         run: |
           set -euo pipefail
-          # Both the author name and the committer email have to be filtered.
-          # An auto-merge leaves the author as github-actions[bot], but a squash
-          # merged from the UI is attributed to whoever clicked the button, so
-          # the name reads "Gergely Peidl" while the committer is always GitHub.
-          # Without both filters the stamp cites itself and the date ratchets
-          # forward on every run.
+          # Three kinds of commit are not page modifications:
           #
-          # "|| true" is load-bearing: grep exits 1 when every commit is the
-          # bot's own, and under set -e that would abort the step before the
-          # check below could explain why.
+          #  1. the bot's own freshness stamp, matched on both the author name
+          #     and the committer email. An auto-merge leaves the author as
+          #     github-actions[bot], but a squash merged from the UI is
+          #     attributed to whoever clicked the button, so the name reads
+          #     "Gergely Peidl" while the committer is always GitHub.
+          #  2. commits that touch no other file, handled by the "-- $1" path.
+          #  3. commits whose entire diff to the page is the dateModified line.
+          #
+          # Filter 3 is the self-referential one: the stamp lives in the page,
+          # so every commit that rewrites it edits index.html. Filtering on the
+          # path alone therefore lets the stamp cite itself, and any human
+          # commit that only reformats the date string gets counted as a
+          # content change. That is how a pure metadata fix claimed the page
+          # had been edited today.
+          #
+          # "|| true" is load-bearing: grep exits 1 when every commit is
+          # filtered out, and under set -e that would abort the step before
+          # the check below could explain why.
           derive() {
-            git log --format='%ad|%an|%ce' --date=short --no-merges -- "$1" \
+            git log --format='%H%x09%ad%x09%an%x09%ce' --date=short --no-merges -- "$1" \
               | grep -vF 'github-actions' \
               | grep -vF 'noreply@github.com' \
-              | head -1 | cut -d'|' -f1 || true
+              | while IFS=$'\t' read -r sha date author committer; do
+                  if git show --format= --unified=0 "$sha" -- "$1" \
+                       | grep -E '^[+-]' \
+                       | grep -vE '^(\+\+\+|---)' \
+                       | grep -qv '"dateModified"'; then
+                    echo "$date"
+                    break
+                  fi
+                done || true
           }
 
           HTML_DATE=$(derive index.html)
