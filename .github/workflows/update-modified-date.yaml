@@ -81,6 +81,18 @@ jobs:
 
           html_date = sys.argv[1]
 
+          # dateModified is typed schema.org DateTime, and Google's ProfilePage
+          # examples all carry a time and a UTC offset. A bare date is a valid
+          # ISO 8601 date but not a DateTime, which the Rich Results Test
+          # rejects as "Invalid datetime value".
+          def as_datetime(day):
+              return f"{day}T00:00:00+00:00"
+
+          # git log --date=short is expected to yield YYYY-MM-DD; anything else
+          # means the value is not a date and must not be written into the page.
+          if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", html_date):
+              sys.exit(f"unexpected date from git history: {html_date!r}")
+
           def sub(path, pattern, render):
               s = open(path, encoding="utf-8").read()
               s2, count = pattern.subn(render, s)
@@ -90,8 +102,8 @@ jobs:
 
           sub(
               "index.html",
-              re.compile(r'("dateModified": ")\d{4}-\d{2}-\d{2}(")'),
-              lambda m: f"{m.group(1)}{html_date}{m.group(2)}",
+              re.compile(r'("dateModified": ")\d{4}-\d{2}-\d{2}T00:00:00\+00:00(")'),
+              lambda m: f"{m.group(1)}{as_datetime(html_date)}{m.group(2)}",
           )
           PY
 
