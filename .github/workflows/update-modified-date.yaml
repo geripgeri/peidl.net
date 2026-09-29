@@ -1,11 +1,12 @@
 name: Sync last modified date
 
-# Blanket bump on every merge to the default branch: rewrite the JSON-LD
-# dateModified in index.html and <lastmod> in sitemap.xml so crawlers and
-# answer engines see a freshness signal that nobody has to maintain by hand.
+# Points the JSON-LD dateModified in index.html and <lastmod> in sitemap.xml
+# at the date a human last changed each file, so the freshness claim is one a
+# crawler can check against git rather than one we assert.
 #
-# Idempotent by construction: the replacement only produces a diff when the
-# stored date is not already today, so repeated runs on the same day are no-ops.
+# Derived from history, never from the clock. Bumping on every merge would
+# claim "modified today" for merges that only touched site-stats.json or a
+# workflow file, and both engines discount a lastmod that is always today.
 
 on:
   pull_request:
@@ -14,9 +15,10 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
-# One bump at a time, queued rather than cancelled, so two merges in quick
-# succession cannot race each other for the push to main.
+# Queued, not cancelled: two merges in quick succession must not race for the
+# branch and the PR.
 concurrency:
   group: sync-last-modified-date
   cancel-in-progress: false
@@ -29,19 +31,57 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # Land the stamp on top of the merge commit, on the base branch.
           ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
-          fetch-depth: 1
+          # Full history, not an optimisation: in a shallow clone the boundary
+          # commit appears to touch every file, so the derived value silently
+          # becomes today for any path.
+          fetch-depth: 0
 
-      - name: Stamp today's date
+      - name: Derive the last human change from git history
+        id: derive
         run: |
           set -euo pipefail
-          TODAY=$(date -u +%F)
-          echo "stamping $TODAY"
-          python3 - "$TODAY" <<'PY'
+          # Both the author name and the committer email have to be filtered.
+          # An auto-merge leaves the author as github-actions[bot], but a squash
+          # merged from the UI is attributed to whoever clicked the button, so
+          # the name reads "Gergely Peidl" while the committer is always GitHub.
+          # Without both filters the stamp cites itself and the date ratchets
+          # forward on every run.
+          #
+          # "|| true" is load-bearing: grep exits 1 when every commit is the
+          # bot's own, and under set -e that would abort the step before the
+          # check below could explain why.
+          derive() {
+            git log --format='%ad|%an|%ce' --date=short --no-merges -- "$1" \
+              | grep -vF 'github-actions' \
+              | grep -vF 'noreply@github.com' \
+              | head -1 | cut -d'|' -f1 || true
+          }
+
+          HTML_DATE=$(derive index.html)
+          SITEMAP_DATE=$(derive sitemap.xml)
+          echo "index.html last human change: ${HTML_DATE:-<none>}"
+          echo "sitemap.xml last human change: ${SITEMAP_DATE:-<none>}"
+
+          # An empty date is worse than a stale one: it turns a real date into a
+          # lie in the other direction.
+          if [ -z "$HTML_DATE" ] || [ -z "$SITEMAP_DATE" ]; then
+            echo "::error::could not derive a last-modified date from git history"
+            exit 1
+          fi
+
+          # Each file is stamped independently, so a commit that touched only
+          # the page does not drag the sitemap's date with it.
+          echo "html=$HTML_DATE" >> "$GITHUB_OUTPUT"
+          echo "sitemap=$SITEMAP_DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp the derived date if changed
+        run: |
+          set -euo pipefail
+          python3 - "${{ steps.derive.outputs.html }}" "${{ steps.derive.outputs.sitemap }}" <<'PY'
           import re, sys
 
-          today = sys.argv[1]
+          html_date, sitemap_date = sys.argv[1], sys.argv[2]
 
           def sub(path, pattern, render):
               s = open(path, encoding="utf-8").read()
@@ -53,29 +93,44 @@ jobs:
           sub(
               "index.html",
               re.compile(r'("dateModified": ")\d{4}-\d{2}-\d{2}(")'),
-              lambda m: f"{m.group(1)}{today}{m.group(2)}",
+              lambda m: f"{m.group(1)}{html_date}{m.group(2)}",
           )
           sub(
               "sitemap.xml",
               re.compile(r"(<lastmod>)\d{4}-\d{2}-\d{2}(</lastmod>)"),
-              lambda m: f"{m.group(1)}{today}{m.group(2)}",
+              lambda m: f"{m.group(1)}{sitemap_date}{m.group(2)}",
           )
           PY
 
-      - name: Commit and push if changed
+      - name: Open an auto-merge PR if changed
         env:
-          # Prefer the PAT so a push here can still trigger a Pages deploy or
-          # any other push-triggered workflow. Safe to loop: this workflow only
-          # listens to pull_request:closed, which a push cannot raise.
+          # A PAT is required: a PR opened with GITHUB_TOKEN raises no
+          # pull_request event, so "validate" never runs and the auto-merge
+          # below would sit pending forever. Store one with contents:write and
+          # pull-requests:write as GH_ACTION_TOKEN.
           GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
+          # On pull_request, GITHUB_REF_NAME is the PR number, not the branch.
+          BASE: ${{ github.event.pull_request.base.ref || github.ref_name }}
+          HTML_DATE: ${{ steps.derive.outputs.html }}
         run: |
           set -euo pipefail
           if git diff --quiet -- index.html sitemap.xml; then
-            echo "date already current, nothing to commit"
+            echo "dates already match git history (index.html $HTML_DATE), nothing to do"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BR="ci/last-modified-$(date -u +%Y%m%d-%H%M)"
+          # Detached HEAD at the merge commit; branch so the stamp lands on top
+          # of the merge. main requires the validate check, so this cannot be a
+          # direct push.
+          git checkout -b "$BR"
           git add index.html sitemap.xml
-          git commit -m "chore(seo): sync last modified date to $(date -u +%F)"
-          git push origin HEAD:"${GITHUB_REF_NAME:-main}"
+          git commit -m "chore(seo): sync last modified date to $HTML_DATE"
+          git push origin HEAD:"$BR"
+          gh pr create --base "$BASE" --head "$BR" \
+            --title "chore(seo): sync last modified date to $HTML_DATE" \
+            --body "Automated freshness stamp: \`dateModified\` in \`index.html\` (\`$HTML_DATE\`) and \`lastmod\` in \`sitemap.xml\` set to the date of the last commit that changed each file, taken from git history rather than the clock. Auto-merge enabled, no review needed."
+          # This merge closes a PR, which runs the workflow again; the second
+          # pass derives the same date, finds no diff and opens nothing.
+          gh pr merge --auto --squash --delete-branch
