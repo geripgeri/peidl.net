@@ -40,7 +40,7 @@ and cite the ADR.
 - Early career: software engineer with frontend and backend responsibilities
 - Core stack: AWS, Kubernetes (Talos Linux), OpenTofu / Terraform, Terragrunt, Ansible, ArgoCD, Prometheus, Grafana, Loki, Tempo, Cilium, Kyverno
 - CI/CD background: Jenkins (cloud-native and on-prem), GitHub Actions, GitLab CI
-- Track record: 500+ production deployments at Sonrisa (2016-2020)
+- Track record: 500+ production deployments at Sonrisa (2020-2025)
 - Also works with: Cloudflare, Proxmox VE, Linux (Arch), Python, Bash, n8n, Datadog, Snyk
 - Favorite tool: Terragrunt
 - Interviewing: 70+ technical and hiring manager interviews
