@@ -633,6 +633,23 @@ html:not(.js) .theme-toggle {
   display: block;
 }
 
+/* The band note matches .prompt-line, the hero's other one-line gray: same
+   0.92rem, same --text-mute. Its own block, so it reads as a note annotating
+   the block below it rather than running into that block, and so no separator
+   is needed at the start of the line. Size and tone only, no font change, so
+   the title block above keeps its single line.
+
+   --text-faint was the wrong token here. In light mode it is #655a52 against
+   --text-mute's #665c54, one to two per channel apart, so it rendered the
+   same gray as the years sentence underneath. At the lead's own size the
+   result was three stacked lines in three near-identical grays, with a
+   39-character fragment set as large as the 44-word sentence below it. */
+.hero .lead .lead-note {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--text-mute);
+}
+
 .hero-meta {
   margin-top: 1.9rem;
   /* rem, not em: em would resolve against this element's own 0.82rem, giving
