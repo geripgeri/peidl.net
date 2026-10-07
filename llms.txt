@@ -9,7 +9,7 @@
 - [Experience](https://peidl.net/#experience): roles, dates, and outcomes
 - [Stack](https://peidl.net/#stack): the tools I actually run in production
 - [Homelab](https://peidl.net/#homelab): the Kubernetes cluster and its case studies
-- [Automation](https://peidl.net/#automation): pipelines and the tooling around them
+- [Automation](https://peidl.net/#automation): Home Assistant, ESPHome, and a fleet of 50+ devices
 - [Contact](https://peidl.net/#contact): email, GitHub, and LinkedIn
 
 ## Case studies
