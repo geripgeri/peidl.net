@@ -10,7 +10,11 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: the label rolls to Ubuntu 26.04 over a
+    # multi-week window from 2026-10-19. Pinning keeps this gate on one known
+    # image, so a runner change lands as a reviewable diff instead of arriving
+    # unannounced on a PR someone else opened.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 

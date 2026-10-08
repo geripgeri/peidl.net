@@ -30,7 +30,10 @@ jobs:
   sync:
     # closed-but-not-merged means the PR was abandoned.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: this job auto-merges to main, so the runner OS
+    # must only change in a reviewed diff, not mid-window when the label rolls
+    # to Ubuntu 26.04. Flip to ubuntu-26.04 deliberately once tested.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
