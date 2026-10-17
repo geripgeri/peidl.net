@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # Action pins carry a `# vX.Y.Z` comment. Dependabot updates the SHA from
+  # that comment; without it the pin stays frozen at that commit.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"

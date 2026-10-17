@@ -17,8 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 # Queued, not cancelled: two merges in quick succession must not race for the
 # branch and the PR.
@@ -27,21 +26,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  sync:
+  # Derives the date from git history and rewrites index.html. No write access,
+  # so a compromised action here cannot push or merge.
+  compute:
     # closed-but-not-merged means the PR was abandoned.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
-    # Pinned, not ubuntu-latest: this job auto-merges to main, so the runner OS
-    # must only change in a reviewed diff, not mid-window when the label rolls
-    # to Ubuntu 26.04. Flip to ubuntu-26.04 deliberately once tested.
+    # Pinned, not ubuntu-latest: this repository auto-merges its own PRs, so the
+    # runner OS must only change in a reviewed diff, not mid-window when the
+    # label rolls to Ubuntu 26.04. Flip to ubuntu-26.04 deliberately once tested.
     runs-on: ubuntu-24.04
+    outputs:
+      html: ${{ steps.derive.outputs.html }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
           # Full history, not an optimisation: in a shallow clone the boundary
           # commit appears to touch every file, so the derived value silently
           # becomes today for any path.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Derive the last human change from git history
         id: derive
@@ -128,16 +132,43 @@ jobs:
           )
           PY
 
+      - name: Upload stamped page
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: stamped-page
+          path: index.html
+          retention-days: 1
+
+  # The only credentials in this workflow are a GitHub App installation token
+  # that expires after an hour and covers only this repository. Unlike
+  # GITHUB_TOKEN, it triggers the validate workflow, so auto-merge can resolve.
+  publish:
+    needs: compute
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create GitHub App token
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Download stamped page
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: stamped-page
+
       - name: Open an auto-merge PR if changed
         env:
-          # A PAT is required: a PR opened with GITHUB_TOKEN raises no
-          # pull_request event, so "validate" never runs and the auto-merge
-          # below would sit pending forever. Store one with contents:write and
-          # pull-requests:write as GH_ACTION_TOKEN.
-          GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
           # On pull_request, GITHUB_REF_NAME is the PR number, not the branch.
           BASE: ${{ github.event.pull_request.base.ref || github.ref_name }}
-          HTML_DATE: ${{ steps.derive.outputs.html }}
+          HTML_DATE: ${{ needs.compute.outputs.html }}
         run: |
           set -euo pipefail
           if git diff --quiet -- index.html; then

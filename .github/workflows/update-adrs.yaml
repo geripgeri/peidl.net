@@ -6,21 +6,26 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: sync-adr-count
   cancel-in-progress: false
 
 jobs:
-  sync:
-    # Pinned, not ubuntu-latest: this job auto-merges to main, so the runner OS
-    # must only change in a reviewed diff, not mid-window when the label rolls
-    # to Ubuntu 26.04. Flip to ubuntu-26.04 deliberately once tested.
+  # Reads from planet-express and edits files. No write access, so a compromised
+  # action here cannot push or merge.
+  compute:
+    # Pinned, not ubuntu-latest: this repository auto-merges its own PRs, so the
+    # runner OS must only change in a reviewed diff, not mid-window when the
+    # label rolls to Ubuntu 26.04. Flip to ubuntu-26.04 deliberately once tested.
     runs-on: ubuntu-24.04
+    outputs:
+      adrs: ${{ steps.count.outputs.adrs }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Count ADRs in planet-express
         id: count
@@ -119,14 +124,45 @@ jobs:
              site-stats.json.tmp > site-stats.json
           rm site-stats.json.tmp
 
+      - name: Upload computed files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: computed-files
+          path: |
+            index.html
+            README.md
+            site-stats.json
+          retention-days: 1
+
+  # The only credentials in this workflow are a GitHub App installation token
+  # that expires after an hour and covers only this repository. Unlike
+  # GITHUB_TOKEN, it triggers the validate workflow, so auto-merge can resolve.
+  publish:
+    needs: compute
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create GitHub App token
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Download computed files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: computed-files
+
       - name: Open auto-merge PR if changed
         env:
-          # Use a PAT so the pull_request event isn't created by GITHUB_TOKEN
-          # (GITHUB_TOKEN-created PRs make the validate check wait for approval).
-          # Create a PAT with repo write + contents write, store as GH_ACTION_TOKEN.
-          GH_TOKEN: ${{ secrets.GH_ACTION_TOKEN || github.token }}
-          ADRS: ${{ steps.count.outputs.adrs }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          ADRS: ${{ needs.compute.outputs.adrs }}
         run: |
+          set -euo pipefail
           if git diff --quiet -- site-stats.json index.html README.md; then
             echo "nothing to sync (ADR count $ADRS already current)"
             exit 0
