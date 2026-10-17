@@ -122,8 +122,11 @@ setting (`prefers-color-scheme`); the toggle stores an explicit choice in
 
 ```
 index.html          single page, semantic sections
+404.html            not-found screen, a copy of the k9s default TUI
 css/styles.css      design tokens + all styling
+css/404.css         404 only: k9s stock-skin colours, mirrored from k9s source
 js/main.js          theme toggle, nav highlighting, stat counters, vim easter eggs
+js/404.js           404 only: requested path + the keys the screen advertises
 fonts/              self-hosted variable woff2 fonts + OFL license texts
 img/favicon.svg     hand-made terminal-prompt mark
 img/og-cover.svg    source of truth for the share card
