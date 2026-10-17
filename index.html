@@ -30,16 +30,7 @@
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="preload" href="fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/jetbrains-mono-var-italic.woff2" as="font" type="font/woff2" crossorigin>
-  <script>
-    (function () {
-      var t = null;
-      try { t = localStorage.getItem('peidl-theme'); } catch (e) {}
-      if (t !== 'light' && t !== 'dark') {
-        t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      document.documentElement.dataset.theme = t;
-    })();
-  </script>
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/main.js" defer></script>
 </head>
@@ -317,7 +308,7 @@
           <svg viewBox="0 0 760 430" role="img" aria-label="Homelab architecture: Git repositories provisioned by OpenTofu onto Proxmox VE, running a four-node Talos Kubernetes cluster managed by ArgoCD, hosting workloads like Immich, Paperless-ngx and n8n.">
             <defs>
               <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M0 0L10 5L0 10z" style="fill:var(--text-faint)"/>
+                <path class="dg-arrowhead" d="M0 0L10 5L0 10z"/>
               </marker>
             </defs>
             <g fill="none">
