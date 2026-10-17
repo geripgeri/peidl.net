@@ -1115,6 +1115,12 @@ section {
   stroke-width: 1.2;
 }
 
+/* The SVG marker's fill. An inline style attribute for it would be blocked by
+   the style-src 'self' CSP. */
+.dg-arrowhead {
+  fill: var(--text-faint);
+}
+
 .dg-note {
   font-family: var(--font-mono);
   font-size: 10.5px;
