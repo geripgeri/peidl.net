@@ -1,0 +1,564 @@
+/* peidl.net · 404 — a k9s screen.
+   Colours are the k9s stock skin defaults, mirrored field for field from
+   derailed/k9s internal/config/templates/stock-skin.yaml and applied the way
+   internal/ui and internal/view apply them, so this is the design rather than
+   an approximation of it. Geometry was measured against a real k9s v0.51.0
+   running at 160x44 cells: 15px JetBrains Mono, 9px cells, 20.25px rows. */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/jetbrains-mono-var.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/jetbrains-mono-var-italic.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* body */
+  --k9s-bg: #000000;
+  --k9s-fg: cadetblue;
+  --k9s-logo: orange;
+  /* frame.title */
+  --k9s-title: aqua;
+  --k9s-title-plain: aqua;
+  --k9s-title-hilite: fuchsia;
+  --k9s-title-count: papayawhip;
+  /* frame.border: views draw a focused lightskyblue border, the details view
+     overrides it with dodgerblue (internal/ui/detail.go SetFocusedBorder).
+     The line sits mid-cell inside a full border row, like a ┄ glyph row. */
+  --k9s-frame: lightskyblue;
+  --k9s-border: dodgerblue;
+  /* frame.menu. The key box is the longest mnemonic + 1 pad cell ("<enter>"). */
+  --k9s-menu: white;
+  --k9s-menu-key: dodgerblue;
+  /* frame.crumbs. The last crumb is highlighted in crumbs.activeColor. */
+  --k9s-crumb-ink: #000000;
+  --k9s-crumb-bg: aqua;
+  --k9s-crumb-active: orange;
+  /* info. values move to column 10 under a 9ch label */
+  --k9s-info-label: orange;
+  --k9s-info-value: white;
+  /* views.table. The row colour comes from the colourer, which is
+     frame.status.newColor (lightskyblue); error rows are status.errorColor.
+     The cursor inverts the row colour with black ink. */
+  --k9s-row: lightskyblue;
+  --k9s-row-err: orangered;
+  --k9s-header: white;
+  --k9s-sorter: aqua;
+  --k9s-sorted-col: lightskyblue;
+  --k9s-cursor-ink: #000000;
+  /* views.xray. Node titles: the icon and the closing paren sit in the node
+     colour, names are bold white, counts are dimmed white, and the Info
+     badges print in antiquewhite. The tree cursor paints the node colour. */
+  --k9s-xray-node: dodgerblue;
+  --k9s-dim: #a9a9a9;
+
+  --k9s-xray-count: var(--k9s-dim);
+  --k9s-xray-graphic: cadetblue;
+  --k9s-xray-info: antiquewhite;
+  --k9s-xray-missing: orange;
+  /* views.yaml, used for the describe block */
+  --k9s-yaml-key: steelblue;
+  --k9s-yaml-colon: white;
+  --k9s-yaml-val: papayawhip;
+  /* flash */
+  --k9s-flash-warn: orange;
+  --k9s-flash-info: navajowhite;
+  --k9s-flash-err: orangered;
+  --k9s-font: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body.k9s {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  padding: 0;
+  background: var(--k9s-bg);
+  color: var(--k9s-fg);
+  font-family: var(--k9s-font);
+  font-size: 15px;
+  line-height: 1.35;
+  font-variant-ligatures: none;
+}
+
+.k9s-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.k9s-screen {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* keep the bottom bar a little above the viewport edge */
+  padding-bottom: 12px;
+}
+
+/* Measurement probe for the JS column pads (one '0', 9px). */
+.k9s-ch {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+  left: -999ch;
+  top: 0;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.k9s-header {
+  display: flex;
+  align-items: flex-start;
+  /* info labels and crumbs start on cell 1; col 159 stays empty */
+  padding: 0 1ch;
+}
+
+.k9s-info {
+  border-collapse: collapse;
+  width: 50ch;
+  flex: 0 0 auto;
+}
+
+.k9s-info th,
+.k9s-info td {
+  text-align: left;
+  font-weight: 400;
+  padding: 0;
+}
+
+.k9s-info th {
+  width: 9ch;
+  color: var(--k9s-info-label);
+  white-space: nowrap;
+}
+
+.k9s-info td {
+  color: var(--k9s-info-value);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.k9s-menu {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.k9s-hint {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  line-height: inherit;
+  color: var(--k9s-menu);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.k9s-hint:hover,
+.k9s-hint:focus-visible {
+  color: var(--k9s-menu-key);
+}
+
+/* k9s pads each mnemonic into a keyfield of maxKeyLen+1 cells; the padding
+   spaces take the key colour, the description follows immediately. */
+.k9s-key {
+  display: inline-block;
+  min-width: 8ch;
+  font-weight: 700;
+  color: var(--k9s-menu-key);
+}
+
+.k9s-hint:hover .k9s-key,
+.k9s-hint:focus-visible .k9s-key {
+  color: var(--k9s-menu);
+}
+
+.k9s-logo {
+  margin: 0 auto 0 1ch;
+  flex: 0 0 auto;
+  color: var(--k9s-logo);
+  font-weight: 700;
+  line-height: inherit;
+  /* 80% of the cell size so the toad fits the corner */
+  font-size: 0.8em;
+}
+
+/* Manifest text inside the logo corner, in the dimmed-white k9s gives
+   quiet status text. */
+.k9s-logo .is-dim {
+  color: var(--k9s-dim);
+  font-weight: 400;
+}
+
+/* --------------------------------------------------------------- content */
+
+.k9s-main {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  margin-top: 0;
+}
+
+.k9s-view {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  /* border cell, pad cell, content — content starts two cells in, one full
+     border row below the top line, exactly like a tview frame */
+  border: 1px solid transparent;
+  padding: 1.35em 2ch;
+  /* Side borders as strips that stop at the top and bottom lines. */
+  background:
+    linear-gradient(var(--k9s-frame) 0 0) 0 0.675em / 1px calc(100% - 1.35em) no-repeat,
+    linear-gradient(var(--k9s-frame) 0 0) 100% 0.675em / 1px calc(100% - 1.35em) no-repeat;
+}
+
+/* The frame lines run through the middle of their own border cell, so the
+   centred title can mask them like tview's EraseSpace would. */
+.k9s-view::before,
+.k9s-view::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--k9s-frame);
+}
+
+.k9s-view::before {
+  top: 0.675em;
+}
+
+.k9s-view::after {
+  bottom: 0.675em;
+}
+
+.k9s-view[hidden] {
+  display: none;
+}
+
+/* the details view frames itself in dodgerblue */
+body.k9s-describe {
+  --k9s-frame: var(--k9s-border);
+}
+
+/* The title is drawn inside the top border, centred like tview's AlignCenter,
+   and masks the line behind the title text plus one pad cell either side. */
+.k9s-title {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0 1ch;
+  background: var(--k9s-bg);
+  font-size: 1em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.k9s-title-name {
+  color: var(--k9s-title);
+}
+
+.k9s-title-plain,
+.k9s-title-count {
+  font-weight: 400;
+}
+
+.k9s-title-plain {
+  color: var(--k9s-title-plain);
+}
+
+.k9s-title-hilite {
+  color: var(--k9s-title-hilite);
+}
+
+.k9s-title-count {
+  color: var(--k9s-title-count);
+}
+
+.k9s-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.k9s-table th,
+.k9s-table td {
+  text-align: left;
+  font-weight: 400;
+  padding: 0 3ch 0 0;
+  white-space: nowrap;
+}
+
+/* Columns pack to their content, like k9s, and the last one absorbs the
+   remaining width so the cursor row still highlights the full line. */
+.k9s-table th:last-child,
+.k9s-table td:last-child {
+  width: 100%;
+  padding-right: 0;
+}
+
+/* RESTARTS carries tview.AlignRight on its cells in k9s, but with the wide
+   expansion share that floats the digits far from their header; values sit
+   under the header instead, like every other column. */
+
+/* Once the JS measured k9s cell pads the widths live in the colgroup and the
+   table is laid out fixed, with the last column taking every leftover cell. */
+.k9s-table.is-padded {
+  table-layout: fixed;
+}
+
+.k9s-table.is-padded th,
+.k9s-table.is-padded td {
+  padding: 0;
+}
+
+.k9s-table thead th {
+  color: var(--k9s-header);
+}
+
+.k9s-table thead th.is-sorted {
+  color: var(--k9s-sorted-col);
+}
+
+.k9s-sorter {
+  color: var(--k9s-sorter);
+  font-weight: 700;
+}
+
+.k9s-table tbody td {
+  color: var(--k9s-row);
+}
+
+.k9s-table tbody tr.is-error td {
+  color: var(--k9s-row-err);
+}
+
+/* The cursor row paints the row's own status colour and inks black. */
+.k9s-table tbody tr.is-cursor td {
+  background: var(--k9s-row);
+  color: var(--k9s-cursor-ink);
+  font-weight: 700;
+}
+
+.k9s-table tbody tr.is-error.is-cursor td {
+  background: var(--k9s-row-err);
+}
+
+.k9s-table a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.k9s-table a:hover,
+.k9s-table a:focus-visible {
+  text-decoration: underline;
+}
+
+.k9s-details,
+.k9s-tree {
+  margin: 0;
+  white-space: pre;
+  color: var(--k9s-fg);
+}
+
+.y-key {
+  color: var(--k9s-yaml-key);
+  font-weight: 700;
+}
+
+.y-colon {
+  color: var(--k9s-yaml-colon);
+}
+
+.y-val,
+.d-pad {
+  color: var(--k9s-yaml-val);
+}
+
+.k9s-tree {
+  color: var(--k9s-xray-node);
+}
+
+.x-graphic {
+  color: var(--k9s-xray-graphic);
+}
+
+/* k9s draws the icon in two terminal cells, so pin it to 2ch: the tree keeps
+   its columns even where the emoji font is missing or a different width. */
+.x-emoji {
+  display: inline-block;
+  width: 2ch;
+}
+
+.x-name {
+  color: var(--k9s-xray-name, white);
+  font-weight: 700;
+}
+
+.x-count {
+  color: var(--k9s-xray-count);
+}
+
+.x-node {
+  color: var(--k9s-xray-node);
+}
+
+.x-info {
+  color: var(--k9s-xray-info);
+}
+
+/* MissingRef toast: the node title moves to the toast colour. */
+.x-missing {
+  color: var(--k9s-xray-missing);
+}
+
+/* " [gray::-][yellow:<color>:b]TOAST_REF[gray::-]" — yellow on the toast colour. */
+.x-badge {
+  background: var(--k9s-xray-missing);
+  color: yellow;
+  font-weight: 700;
+}
+
+/* The tree cursor paints the node colour behind the root title. */
+.x-cursored {
+  background: var(--k9s-xray-node);
+}
+
+/* ---------------------------------------------------------------- footer */
+
+/* Crumbs and flash share one row, like the k9s bottom bar. */
+.k9s-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1ch 2ch;
+  padding: 0 1ch;
+}
+
+.k9s-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1ch;
+}
+
+/* "[fg:bg:b] <crumb> [-:bg:-] " — the padding is the space inside the block. */
+.k9s-crumb {
+  padding: 0 1ch;
+  background: var(--k9s-crumb-bg);
+  color: var(--k9s-crumb-ink);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.k9s-crumb.is-active {
+  background: var(--k9s-crumb-active);
+}
+
+a.k9s-crumb:hover,
+a.k9s-crumb:focus-visible {
+  background: var(--k9s-title-hilite);
+}
+
+.k9s-flash {
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  color: var(--k9s-flash-warn);
+}
+
+/* k9s keeps the flash row but blanks it between messages. */
+.k9s-flash.is-clear {
+  visibility: hidden;
+}
+
+.k9s-flash[data-level='info'] {
+  color: var(--k9s-flash-info);
+}
+
+.k9s-flash[data-level='err'] {
+  color: var(--k9s-flash-err);
+}
+
+.k9s-flash-emoji {
+  display: inline-block;
+  min-width: 2ch;
+  margin-right: 1ch;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+/* k9s drops the logo art when the terminal is too narrow. */
+@media (max-width: 62rem) {
+  .k9s-logo {
+    display: none;
+  }
+}
+
+@media (max-width: 44rem) {
+  body.k9s {
+    font-size: 13px;
+  }
+
+  .k9s-logo {
+    display: none;
+  }
+
+  /* Context and Cluster survive; the revision and gauge rows go. */
+  .k9s-info tr:nth-child(n + 4) {
+    display: none;
+  }
+
+  /* NAME and STATUS survive, like a squeezed k9s table. */
+  .k9s-table th:nth-child(2),
+  .k9s-table td:nth-child(2),
+  .k9s-table th:nth-child(4),
+  .k9s-table td:nth-child(4),
+  .k9s-table th:nth-child(5),
+  .k9s-table td:nth-child(5) {
+    display: none;
+  }
+
+  .k9s-details,
+  .k9s-tree {
+    font-size: 11px;
+  }
+}
