@@ -225,6 +225,9 @@
     }
 
     // Apply: fixed layout, widths live on the colgroup, cells without pad.
+    // Display:none columns (the squeezed mobile layout) free their cells,
+    // which remap onto the leading columns, so the pads pack left and the
+    // rest of the group collapses to nothing.
     var colgroup = table.tHead.previousSibling;
     if (!colgroup || colgroup.tagName !== 'COLGROUP') {
       colgroup = doc.createElement('colgroup');
@@ -232,9 +235,11 @@
       for (var g = 0; g < widths.length; g++) colgroup.appendChild(doc.createElement('col'));
     }
     var cols = colgroup.children;
+    var col = 0;
     for (var j = 0; j < widths.length; j++) {
-      cols[j].style.width = widths[j] ? widths[j] + 'ch' : '0ch';
+      if (widths[j]) cols[col++].style.width = widths[j] + 'ch';
     }
+    for (var z = col; z < cols.length; z++) cols[z].style.width = '0ch';
     table.classList.add('is-padded');
   }
 

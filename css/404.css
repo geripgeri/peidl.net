@@ -542,6 +542,12 @@ a.k9s-crumb:focus-visible {
     display: none;
   }
 
+  /* The 50ch corner pad would take the whole screen, and the menu with
+     the hints is the only navigation on a touch screen. */
+  .k9s-info {
+    width: auto;
+  }
+
   /* Context and Cluster survive; the revision and gauge rows go. */
   .k9s-info tr:nth-child(n + 4) {
     display: none;
@@ -557,8 +563,26 @@ a.k9s-crumb:focus-visible {
     display: none;
   }
 
+  /* The menu hugs the info table once the 50ch pad is gone. */
+  .k9s-menu {
+    margin-left: 1ch;
+  }
+
+  /* A narrow terminal clips long lines instead of panning sideways. */
+  .k9s-view {
+    overflow: hidden;
+  }
+
   .k9s-details,
   .k9s-tree {
     font-size: 11px;
+  }
+}
+
+/* Short terminals trim the info block to the context rows, like a k9s
+   squeezed at the bottom of a screen. */
+@media (max-height: 35rem) {
+  .k9s-info tr:nth-child(n + 4) {
+    display: none;
   }
 }
