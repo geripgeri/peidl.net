@@ -1087,10 +1087,6 @@ section {
   stroke: var(--line);
 }
 
-.dg-accent {
-  stroke: var(--accent);
-}
-
 .dg-title {
   font-family: var(--font-mono);
   font-size: 12.5px;
