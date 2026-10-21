@@ -670,7 +670,7 @@ html:not(.js) .theme-toggle {
 }
 
 .eyebrow::before {
-  content: '$ cat ';
+  content: '$ ';
   color: var(--text-faint);
 }
 
@@ -734,9 +734,25 @@ section {
 
 /* The eyebrow is a <p>, so the h2 beside it is the accessible name and what
    an agent reads as the section title. The h2s therefore carry plain topical
-   words and the voiceful lines live in the .intro below them. The eyebrow
-   holds the file name rather than the section name so the two do not stutter,
-   and it matches the open file in the statusline. */
+   words and the voiceful lines live in the .intro below them.
+
+   What the eyebrow holds is the command whose output would be this section:
+   man geri, git log --author=geri, pacman -Qe, kubectl --context=planet-express get nodes,
+   hass-cli state list, dig +short MX peidl.net. It used to hold a fake file
+   name, ~/about.md and so on, which was the h2 restated in a different
+   costume, and six of those in a row gave every section the same opening
+   beat. Naming the command carries something the heading cannot: what the
+   section is made of and which tool it came out of.
+
+   The contact one is the only eyebrow a reader can check against the public
+   record. Run it and peidl.net answers with its real MX records, both of
+   them Proton Mail, which is the same instinct as the footer's no cookies,
+   no trackers, no analytics line. The other five are commands on a machine
+   nobody else has.
+
+   The statusline keeps showing the open file for the section you are in, so
+   the two now read as a place and a command rather than the same file name
+   printed twice. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -766,10 +782,15 @@ section {
    prose column and visually crowded the facts box beside and below it.
    Tying the measure to the grid's own first column keeps them aligned at
    every width, and survives a change to the 1.55fr ratio.
-   The size is set so the deck stays on the two intended lines: the site
-   renders entirely in JetBrains Mono, where the second line needs 501px
-   at 0.9rem against 549px of column. The single column breakpoint
-   restores 1rem and the full 44em measure. */
+   The size is set so both sentences hold a single line at every width. The
+   site renders entirely in JetBrains Mono, where line length is just a
+   character count, so both numbers are worth keeping: at 0.9rem against 549px
+   of column, line one measures 501px and line two, the tighter of the two at
+   535px, is what actually sets the budget, at 63 characters.
+   The 64rem query below is what keeps that budget honest. Two columns hold
+   535px only while the prose column is wide enough, which stops being true
+   just under 1024px, so below there the grid stacks, the deck goes back to
+   1rem and the full 44em measure, and the line break is no longer at risk. */
 #about .section-head .intro {
   max-width: calc((100% - var(--about-gap)) * 1.55 / 2.55);
   font-size: 0.9rem;
@@ -1087,10 +1108,6 @@ section {
   stroke: var(--line);
 }
 
-.dg-accent {
-  stroke: var(--accent);
-}
-
 .dg-title {
   font-family: var(--font-mono);
   font-size: 12.5px;
@@ -1245,17 +1262,28 @@ section {
   white-space: nowrap;
 }
 
-@media (max-width: 46rem) {
-  :root {
-    --nav-h: 3rem;
-  }
+/* The about grid stacks at 64rem, not at the 46rem every other grid waits for.
+   Two columns only work here while the prose column can hold the deck's
+   longest line, which measures 535px at 0.9rem, and measured in the browser
+   that stops being true just under 1024px: the column is 543px at a 1024px
+   viewport, 529px at 1000px, 495px at 940px and 414px at 800px. Below that
+   the deck breaks into three or four lines, and the facts box is squeezed
+   into a 267px column at the bottom of the range. Both are better off
+   stacked, and one column also frees the deck to go back to 1rem and the
+   full 44em measure. */
+@media (max-width: 64rem) {
   .about-grid {
     grid-template-columns: 1fr;
   }
-  /* single column, so the intro can use the full measure and body size again */
   #about .section-head .intro {
     max-width: 44em;
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 46rem) {
+  :root {
+    --nav-h: 3rem;
   }
   .xp-item {
     grid-template-columns: 1fr;

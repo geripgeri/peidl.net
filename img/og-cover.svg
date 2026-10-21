@@ -33,7 +33,7 @@
   <rect width="1200" height="630" fill="url(#grid)" />
   <g font-family="JetBrains Mono" fill="#a89984">
     <text x="72" y="136" font-size="34" fill="#b8bb26" data-maxw="1088">$</text>
-    <text x="108" y="136" font-size="34" data-maxw="1052">cat ~/profile</text>
+    <text x="108" y="136" font-size="34" data-maxw="1052">whoami</text>
     <text x="72" y="248" font-size="58" fill="#b8bb26" data-maxw="1088">&gt;</text>
     <text x="118" y="248" font-size="58" fill="#a89984" data-maxw="1042">_</text>
     <text x="72" y="360" font-size="74" fill="#ebdbb2" data-maxw="1088">Gergely Peidl</text>

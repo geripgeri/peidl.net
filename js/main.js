@@ -214,6 +214,15 @@
 
   var SECTION_IDS = ['about', 'experience', 'stack', 'homelab', 'automation', 'contact'];
 
+  // ':', '/' and '?' all open a command line in the status bar, and while one
+  // is open every key is text for it. Outside one the buffer only ever holds a
+  // pending 'g' or 'Z', so a key that does nothing cannot swallow the ':' or
+  // '/' that follows it.
+  function isCmdline(buf) {
+    var c = buf.charAt(0);
+    return c === ':' || c === '/' || c === '?';
+  }
+
   function scrollToSection(id) {
     var el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: smooth(), block: 'start' });
@@ -245,7 +254,7 @@
   if (modeEl) {
     document.addEventListener('selectionchange', function () {
       if (Date.now() < findSelUntil) return;
-      if (typeof updateMode === 'function' && (eggBuf.charAt(0) === ':' || eggBuf.charAt(0) === '/')) return;
+      if (typeof updateMode === 'function' && isCmdline(eggBuf)) return;
       var s = window.getSelection ? window.getSelection() : null;
       var visual = !!(s && !s.isCollapsed && String(s).length > 0);
       modeEl.textContent = visual ? 'VISUAL' : 'NORMAL';
@@ -297,7 +306,7 @@
 
     updateMode = function () {
       if (!modeEl || modeEl.classList.contains('is-error')) return;
-      if (eggBuf.charAt(0) === ':' || eggBuf.charAt(0) === '/') {
+      if (isCmdline(eggBuf)) {
         modeEl.textContent = eggBuf;
         modeEl.classList.add('is-cmdline');
         modeEl.classList.remove('is-visual');
@@ -347,7 +356,9 @@
     };
 
     var doSearch = function (backwards) {
-      var query = eggBuf.charAt(0) === '/' ? eggBuf.slice(1) : lastQuery;
+      // '/' and '?' carry their pattern in the buffer; n and N reuse the last
+      // one, which is why an empty buffer falls back to it.
+      var query = isCmdline(eggBuf) ? eggBuf.slice(1) : lastQuery;
       eggBuf = '';
       updateMode();
       if (!query) {
@@ -395,9 +406,9 @@
         updateMode();
         return;
       }
-      if (e.key === 'Enter' && eggBuf.charAt(0) === '/') {
+      if (e.key === 'Enter' && (eggBuf.charAt(0) === '/' || eggBuf.charAt(0) === '?')) {
         e.preventDefault();
-        doSearch(false);
+        doSearch(eggBuf.charAt(0) === '?');
         return;
       }
       if (e.key === 'Backspace') {
@@ -428,13 +439,27 @@
         e.preventDefault(); scrollHalfPage(false); return;
       }
       if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        if (e.key === 'G' && eggBuf.charAt(0) !== ':' && eggBuf.charAt(0) !== '/') {
+        if (isCmdline(eggBuf)) {
+          // Deliberately uncapped. The statusline clips a long command line in
+          // CSS, and a cap here drops the leading ':' or '/' the moment it
+          // bites, which silently turns the command line back into inert text.
+          eggBuf += e.key;
+        } else if (e.key === ':' || e.key === '/' || e.key === '?') {
+          // A command line replaces whatever half-typed command was pending.
+          eggBuf = e.key;
+        } else if (e.key === 'G') {
           eggBuf = '';
           updateMode();
           window.scrollTo({ top: document.documentElement.scrollHeight, behavior: smooth() });
           return;
+        } else if (e.key === 'g' || e.key === 'Z') {
+          // The only keys that still grow into a command: gg, ZZ and ZQ.
+          eggBuf = eggBuf === e.key ? eggBuf + e.key : e.key;
+        } else {
+          eggBuf = '';
+          updateMode();
+          return;
         }
-        eggBuf = (eggBuf + e.key).slice(-8);
         if (eggBuf === 'ZZ' || eggBuf === 'ZQ') {
           showEgg(eggBuf);
           return;

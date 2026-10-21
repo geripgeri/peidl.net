@@ -18,12 +18,12 @@
   <meta property="og:image" content="https://peidl.net/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Terminal-style profile card: $ cat ~/profile, Gergely Peidl, Lead DevOps and Cloud Infrastructure Engineer at Protex AI, peidl.net, Budapest, HU, 13+ years in engineering, 10+ in DevOps and Cloud Infrastructure.">
+  <meta property="og:image:alt" content="Terminal-style profile card: $ whoami, Gergely Peidl, Lead DevOps and Cloud Infrastructure Engineer at Protex AI, peidl.net, Budapest, HU, 13+ years in engineering, 10+ in DevOps and Cloud Infrastructure.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Gergely Peidl | Lead DevOps and Cloud Infrastructure Engineer">
   <meta name="twitter:description" content="Lead DevOps and Cloud Infrastructure Engineer at Protex AI, level 4 of 5. 13+ years in engineering, 10+ in DevOps and Cloud Infrastructure. Budapest.">
   <meta name="twitter:image" content="https://peidl.net/img/og-cover.png">
-  <meta name="twitter:image:alt" content="Terminal-style profile card: $ cat ~/profile, Gergely Peidl, Lead DevOps and Cloud Infrastructure Engineer at Protex AI, peidl.net, Budapest, HU, 13+ years in engineering, 10+ in DevOps and Cloud Infrastructure.">
+  <meta name="twitter:image:alt" content="Terminal-style profile card: $ whoami, Gergely Peidl, Lead DevOps and Cloud Infrastructure Engineer at Protex AI, peidl.net, Budapest, HU, 13+ years in engineering, 10+ in DevOps and Cloud Infrastructure.">
   <link rel="sitemap" type="application/xml" href="https://peidl.net/sitemap.xml">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbf1c7">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#282828">
@@ -67,14 +67,14 @@
     <section id="about" aria-labelledby="about-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/about.md</p>
+          <p class="eyebrow">man geri</p>
           <h2 id="about-title">About</h2>
           <p class="intro">Lead DevOps and Cloud Infrastructure Engineer in Budapest.</p>
           <p class="intro">I turn runbooks into pipelines, the short version of 13 years.</p>
         </div>
         <div class="about-grid">
           <div class="about-prose">
-            <p>I'm a lead DevOps and cloud infrastructure engineer based in Budapest. I started as a software engineer with frontend and backend responsibilities before moving toward infrastructure. Somewhere along the way I found out that I enjoy making servers boring.</p>
+            <p>I started as a software engineer with frontend and backend responsibilities before moving toward infrastructure. Somewhere along the way I found out that I enjoy making servers boring.</p>
             <p>I work best in a player-coach role, combining technical direction, mentoring, and hands-on infrastructure engineering.</p>
             <p>I mentored multiple engineers at Sonrisa. One of them progressed from entry-level Junior Engineer to Senior Engineer and then to Tech Lead under my mentorship before I left in July 2025.</p>
             <p>These days I lead Cloud Infrastructure at Protex AI. I set technical direction, review important pull requests, and write infrastructure code every week. I care about infrastructure as code done properly, monitoring people actually look at, and automation as a default habit instead of an afterthought. My favorite tool of recent years is Terragrunt. It keeps large Terraform setups organized, and I will happily talk about it longer than you planned.</p>
@@ -118,7 +118,7 @@
     <section id="experience" aria-labelledby="experience-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/experience.md</p>
+          <p class="eyebrow">git log --author=geri</p>
           <h2 id="experience-title">Experience</h2>
           <p class="intro">Thirteen years, two employers. A project-based consulting company and a SaaS scale-up. They teach very different lessons, and both show up in how I build.</p>
         </div>
@@ -217,7 +217,7 @@
     <section id="stack" aria-labelledby="stack-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/stack.md</p>
+          <p class="eyebrow">pacman -Qe</p>
           <h2 id="stack-title">Stack</h2>
           <p class="intro">Tools I reach for.</p>
         </div>
@@ -293,7 +293,7 @@
     <section id="homelab" aria-labelledby="homelab-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/homelab.md</p>
+          <p class="eyebrow">kubectl --context=planet-express get nodes</p>
           <h2 id="homelab-title">Homelab</h2>
           <p class="intro">&ldquo;Good news, everyone!&rdquo; planet-express is a production-grade Kubernetes homelab running on a single bare-metal host, run entirely as code, and where I'm learning Kubernetes properly, bottom-up. Every non-obvious choice has an Architecture Decision Record that explains what was evaluated, what was rejected, and why.</p>
         </div>
@@ -391,7 +391,7 @@
     <section id="automation" aria-labelledby="automation-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/automation.md</p>
+          <p class="eyebrow">hass-cli state list</p>
           <h2 id="automation-title">Home Automation &amp; IoT</h2>
           <p class="intro">Where the homelab philosophy gets a roof, walls and Wi-Fi.</p>
         </div>
@@ -441,7 +441,7 @@
     <section id="contact" aria-labelledby="contact-title">
       <div class="wrap section-pad">
         <div class="section-head">
-          <p class="eyebrow">~/contact.md</p>
+          <p class="eyebrow">dig +short MX peidl.net</p>
           <h2 id="contact-title">Contact</h2>
           <p class="intro">Open to interesting problems, mentoring conversations, or a good debate about whether YAML counts as programming.</p>
         </div>
@@ -533,7 +533,8 @@
   ^D / ^U                    scroll half-page down / up
   {  / }                     previous / next section
   w  / b                     next / previous section
-  /pattern   n  N            search this page
+  /pattern  ?pattern         search forward / backward
+  n  N                       next / previous match
   :smile                     the classic
   :e!                        reload from disk
   :h                         this help</pre>
