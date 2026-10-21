@@ -782,19 +782,15 @@ section {
    prose column and visually crowded the facts box beside and below it.
    Tying the measure to the grid's own first column keeps them aligned at
    every width, and survives a change to the 1.55fr ratio.
-   The size is set so the deck holds its two intended lines at 1024px and
-   wider. The site renders entirely in JetBrains Mono, where line length is
-   just a character count, so both numbers are worth keeping: at 0.9rem
-   against 549px of column, line one measures 501px and line two, the
-   tighter of the two at 535px, is what actually sets the budget, at 63
-   characters.
-   Between 1024px and the 46rem single column breakpoint that budget does
-   not hold, because the column shrinks faster than the type: measured at
-   1000px it is 529px, at 940px 495px, at 860px 449px. Line two wraps
-   first, around 1000px, and line one follows below 1024px, so the deck
-   reads as three or four lines across the whole range. Shrinking the type
-   or widening the column there would fix it; nothing does yet.
-   The single column breakpoint restores 1rem and the full 44em measure. */
+   The size is set so both sentences hold a single line at every width. The
+   site renders entirely in JetBrains Mono, where line length is just a
+   character count, so both numbers are worth keeping: at 0.9rem against 549px
+   of column, line one measures 501px and line two, the tighter of the two at
+   535px, is what actually sets the budget, at 63 characters.
+   The 64rem query below is what keeps that budget honest. Two columns hold
+   535px only while the prose column is wide enough, which stops being true
+   just under 1024px, so below there the grid stacks, the deck goes back to
+   1rem and the full 44em measure, and the line break is no longer at risk. */
 #about .section-head .intro {
   max-width: calc((100% - var(--about-gap)) * 1.55 / 2.55);
   font-size: 0.9rem;
@@ -1266,17 +1262,28 @@ section {
   white-space: nowrap;
 }
 
-@media (max-width: 46rem) {
-  :root {
-    --nav-h: 3rem;
-  }
+/* The about grid stacks at 64rem, not at the 46rem every other grid waits for.
+   Two columns only work here while the prose column can hold the deck's
+   longest line, which measures 535px at 0.9rem, and measured in the browser
+   that stops being true just under 1024px: the column is 543px at a 1024px
+   viewport, 529px at 1000px, 495px at 940px and 414px at 800px. Below that
+   the deck breaks into three or four lines, and the facts box is squeezed
+   into a 267px column at the bottom of the range. Both are better off
+   stacked, and one column also frees the deck to go back to 1rem and the
+   full 44em measure. */
+@media (max-width: 64rem) {
   .about-grid {
     grid-template-columns: 1fr;
   }
-  /* single column, so the intro can use the full measure and body size again */
   #about .section-head .intro {
     max-width: 44em;
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 46rem) {
+  :root {
+    --nav-h: 3rem;
   }
   .xp-item {
     grid-template-columns: 1fr;
