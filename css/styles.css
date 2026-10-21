@@ -782,10 +782,19 @@ section {
    prose column and visually crowded the facts box beside and below it.
    Tying the measure to the grid's own first column keeps them aligned at
    every width, and survives a change to the 1.55fr ratio.
-   The size is set so the deck stays on the two intended lines: the site
-   renders entirely in JetBrains Mono, where the second line needs 501px
-   at 0.9rem against 549px of column. The single column breakpoint
-   restores 1rem and the full 44em measure. */
+   The size is set so the deck holds its two intended lines at 1024px and
+   wider. The site renders entirely in JetBrains Mono, where line length is
+   just a character count, so both numbers are worth keeping: at 0.9rem
+   against 549px of column, line one measures 501px and line two, the
+   tighter of the two at 535px, is what actually sets the budget, at 63
+   characters.
+   Between 1024px and the 46rem single column breakpoint that budget does
+   not hold, because the column shrinks faster than the type: measured at
+   1000px it is 529px, at 940px 495px, at 860px 449px. Line two wraps
+   first, around 1000px, and line one follows below 1024px, so the deck
+   reads as three or four lines across the whole range. Shrinking the type
+   or widening the column there would fix it; nothing does yet.
+   The single column breakpoint restores 1rem and the full 44em measure. */
 #about .section-head .intro {
   max-width: calc((100% - var(--about-gap)) * 1.55 / 2.55);
   font-size: 0.9rem;
