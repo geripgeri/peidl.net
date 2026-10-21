@@ -670,7 +670,7 @@ html:not(.js) .theme-toggle {
 }
 
 .eyebrow::before {
-  content: '$ cat ';
+  content: '$ ';
   color: var(--text-faint);
 }
 
@@ -734,9 +734,25 @@ section {
 
 /* The eyebrow is a <p>, so the h2 beside it is the accessible name and what
    an agent reads as the section title. The h2s therefore carry plain topical
-   words and the voiceful lines live in the .intro below them. The eyebrow
-   holds the file name rather than the section name so the two do not stutter,
-   and it matches the open file in the statusline. */
+   words and the voiceful lines live in the .intro below them.
+
+   What the eyebrow holds is the command whose output would be this section:
+   man geri, git log --author=geri, pacman -Qe, kubectl --context=planet-express get nodes,
+   hass-cli state list, dig +short MX peidl.net. It used to hold a fake file
+   name, ~/about.md and so on, which was the h2 restated in a different
+   costume, and six of those in a row gave every section the same opening
+   beat. Naming the command carries something the heading cannot: what the
+   section is made of and which tool it came out of.
+
+   The contact one is the only eyebrow a reader can check against the public
+   record. Run it and peidl.net answers with its real MX records, both of
+   them Proton Mail, which is the same instinct as the footer's no cookies,
+   no trackers, no analytics line. The other five are commands on a machine
+   nobody else has.
+
+   The statusline keeps showing the open file for the section you are in, so
+   the two now read as a place and a command rather than the same file name
+   printed twice. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.8rem;
